@@ -1,0 +1,175 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+*.ini
+
+# Distribution / packaging
+.Python'
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.env.*
+**/.env
+**/.env.*
+.venv
+env/
+venv/
+ENV/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+
+# Apple Device
+**/.DS_Store
+
+# static-files for collectstatic
+/static-files
+static_files
+artnedition/staticfiles/text/*.txt
+
+# mediafiles
+mediafiles/
+*.map
+*.css.map
+*.scss.map
+
+# aws
+aws/
+
+# IDE settings
+.idea/
+.vscode/
+*.sublime-workspace
+
+# Node
+node_modules/
+
+# Crawling
+templates/robots.txt
+
+# Deploy
+deploy
+builder
+
+# AI
+.codex/
+ref_coreui
+WORKFLOW.md
+symphony*
+.claude/
+.bkit/
+.ralphrc
+.superpowers
+
+# claude
+/findings.md
+/progress.md
+/task_plan.md
+
+# Git worktrees
+.worktrees/
+
+# vault (개인정보 금고)
+docs/*.csv
+*.csv
+*.xlsx
+*.xls
+*.numbers
+legacy/
+dist/
+test-results/
+playwright-report/
+*.plain.*
+.agents/
+
+# 배포 저장소(public)에는 사이트에 필요한 파일만 올린다. 나머지는 로컬에만 둔다.
+README.md
+/*
+!/.gitignore
+!/index.html
+!/favicon.svg
+!/template.enc.json
+!/data.enc.json
