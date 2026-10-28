@@ -1,1 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#1e1b4b"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#g)"/><path d="M32 20c-4.5-3-10-3.6-16-2.4v26c6-1.2 11.5-.6 16 2.4z" fill="#fff"/><path d="M32 20c4.5-3 10-3.6 16-2.4v26c-6-1.2-11.5-.6-16 2.4z" fill="#fff" fill-opacity=".72"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg-em" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#064e3b"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#bg-em)"/>
+  <!-- Shackle -->
+  <path d="M22 28v-8a10 10 0 0 1 20 0v8" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+  <!-- Body -->
+  <rect x="16" y="28" width="32" height="24" rx="6" fill="#ffffff"/>
+  <!-- Keyhole dot -->
+  <circle cx="32" cy="40" r="3.5" fill="#064e3b"/>
+</svg>
