@@ -1,0 +1,191 @@
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+
+/* ── 디자인 토큰 ─────────────────────────────────────────
+   DESIGN.md(Apple 계열)를 데이터 화면에 맞게 옮겼다.
+   - 강조색은 Action Blue 하나(--brand). 누를 수 있는 것만 파랗다.
+   - 카드·버튼·글자에 그림자 없음. 구분은 바탕색(parchment ↔ white)과 1px hairline으로.
+   - 모서리 문법: 칸/작은 버튼 8px · 카드 18px · 주 버튼/검색/탭 pill. 그 사이 값은 쓰지 않는다.
+   - 굵기는 400/600만. 17px 이상 제목은 자간을 좁힌다.
+   모든 구성 요소는 아래 값만 쓴다. PC(기본)와 모바일(≤640px)은
+   같은 토큰 이름에 다른 값을 넣는 방식으로 이원화한다. */
+:root{
+ /* 색 */
+ --bg:#f5f5f7;--surface:#fff;--surface-2:#fafafc;--sunken:#ededf0;
+ --ink:#1d1d1f;--ink-2:#333;--muted:#6e6e73;
+ --line:#e0e0e0;--line-2:#d2d2d7;--line-soft:#f0f0f0;
+ --brand:#0066cc;--brand-hover:#0058b0;--brand-ink:#fff;--brand-soft:#e8f1fb;
+ --focus-ring:#0071e3;
+ --danger:#c4291c;--danger-soft:#fdeeec;
+ --frost:rgba(245,245,247,.8);
+ --font:'SF Pro Text',system-ui,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard','Noto Sans KR','Segoe UI',sans-serif;
+ --font-display:'SF Pro Display',system-ui,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard','Noto Sans KR',sans-serif;
+ --track-tight:-.022em;
+
+ /* 글자 크기: xs 보조 라벨 · sm 버튼/표 머리글(caption) · md 본문/입력 · lg 카드 제목(tagline) · xl 브랜드 */
+ --fs-xs:12px;--fs-sm:14px;--fs-md:15px;--fs-lg:21px;--fs-xl:24px;
+ --lh:1.47;
+
+ /* 간격(4px 단위) */
+ --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;
+
+ /* 컨트롤 높이: 주 컨트롤(탭·검색·저장) · 보조 버튼 · 표 입력칸 · 칸 안 작은 버튼 */
+ --h-control:40px;--h-button:36px;--h-input:36px;--h-mini:30px;
+
+ /* 모서리 */
+ --r-card:18px;--r-ctl:8px;--r-input:8px;--r-pill:999px;
+
+ /* 레이아웃 */
+ --page-w:1180px;--page-pad:var(--sp-6);--card-pad:var(--sp-6);--card-gap:var(--sp-5);
+ --cell-pad:var(--sp-1);--label-w:5em;
+ /* 모바일 카드(표 행) */
+ --gap-tight:6px;--row-pad:5px 7px;--row-bg:var(--surface);--ctl-pad-x:6px;
+}
+
+@media (max-width:640px){
+ :root{
+  --fs-xs:11px;--fs-sm:12px;--fs-md:13px;--fs-lg:17px;--fs-xl:19px;
+  --lh:1.35;
+  --h-control:34px;--h-button:28px;--h-input:30px;--h-mini:26px;
+  --page-pad:10px;--card-pad:var(--sp-3);--card-gap:var(--sp-2);
+  --cell-pad:1px;
+ }
+}
+
+/* ── 기본 ── */
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:var(--fs-md)/var(--lh) var(--font);letter-spacing:-.01em;-webkit-font-smoothing:antialiased}
+h1,h2,.brand{font-family:var(--font-display);font-weight:600;letter-spacing:var(--track-tight)}
+button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
+::selection{background:var(--brand-soft)}
+main{max-width:var(--page-w);margin:0 auto;padding:0 var(--page-pad) 64px}
+
+/* ── 버튼 ── */
+button{min-height:var(--h-button);padding:0 var(--sp-4);border:1px solid var(--line-2);background:var(--surface);color:var(--brand);border-radius:var(--r-pill);cursor:pointer;white-space:nowrap;font-size:var(--fs-sm);font-weight:400;transition:background .15s,border-color .15s,color .15s,transform .1s}
+button:hover{border-color:var(--brand)}
+button:active:not(:disabled){transform:scale(.95)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--focus-ring);outline-offset:1px}
+button.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+button.primary:hover{background:var(--brand-hover);border-color:var(--brand-hover)}
+button.danger{border-color:transparent;background:var(--danger-soft);color:var(--danger)}
+button.danger:hover{border-color:var(--danger)}
+button:disabled{opacity:.45;cursor:wait}
+
+/* ── 상단 바 ── */
+.top{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;margin-bottom:var(--sp-3);background:var(--frost);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-xl);line-height:1.1;margin:0}
+.brand::before{content:"";width:calc(var(--h-control) - 8px);height:calc(var(--h-control) - 8px);border-radius:var(--r-input);flex:none;background:var(--ink) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='9' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E") center/55% no-repeat}
+#updatedAt{grid-column:2;grid-row:1;color:var(--muted);font-size:var(--fs-xs);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#updatedAt:empty{display:none}
+.actions{grid-column:3;grid-row:1;display:flex;gap:var(--sp-2)}
+.top button{min-height:var(--h-control);padding:0 var(--sp-4);font-size:var(--fs-md)}
+#saveStatus{margin:0 0 var(--sp-3);padding:var(--sp-2) var(--sp-4);border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--line);font-size:var(--fs-sm)}
+
+/* ── 세그먼트(메인 탭 · 본인/가족) ── */
+[role=tablist],.segmented{display:inline-flex;gap:2px;padding:3px;background:var(--sunken);border-radius:var(--r-pill)}
+[role=tablist]{margin:0 0 var(--sp-4)}
+[role=tab],.segmented button{min-height:calc(var(--h-control) - 6px);border:1px solid transparent;border-radius:var(--r-pill);background:none;padding:0 var(--sp-5);color:var(--ink-2);font-size:var(--fs-md);font-weight:400}
+[role=tab]:hover,.segmented button:hover{border-color:transparent;color:var(--ink)}
+[role=tab][aria-selected=true],.segmented button[aria-pressed=true]{background:var(--surface);border-color:var(--line);color:var(--ink);font-weight:600}
+.segmented button{min-width:5.5em}
+.segmented .count{display:inline-block;min-width:1.6em;margin-left:var(--sp-1);padding:0 6px;border-radius:var(--r-pill);background:var(--surface);color:var(--muted);font-size:var(--fs-xs);font-weight:600;font-variant-numeric:tabular-nums}
+.segmented button[aria-pressed=true] .count{background:var(--brand-soft);color:var(--brand)}
+
+/* ── 카드 ── */
+.section{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:var(--card-pad);margin-bottom:var(--card-gap)}
+.section-head{display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-3)}
+.section-head h2{font-size:var(--fs-lg);line-height:1.19;margin:0;margin-right:auto;flex-shrink:0}
+.category-filter{min-width:0;max-width:14em;flex:0 1 14em;min-height:var(--h-button);padding:0 30px 0 var(--sp-3);border:1px solid var(--line-2);border-radius:var(--r-pill);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 10px center/14px no-repeat;-webkit-appearance:none;appearance:none;color:var(--ink);font-size:var(--fs-sm)}
+
+/* ── 비밀번호 도구 줄 ── */
+.pw-tools{display:flex;gap:var(--sp-2);align-items:center;flex-wrap:wrap;margin-bottom:var(--sp-3)}
+#pwSearch{flex:1;min-width:12em;min-height:var(--h-control);padding:0 var(--sp-3) 0 36px;border:1px solid var(--line-2);border-radius:var(--r-pill);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") 13px center/15px no-repeat;font-size:var(--fs-sm)}
+#pwSearch:focus{outline:2px solid var(--focus-ring);outline-offset:1px;border-color:transparent}
+
+/* ── 표(PC) ── */
+.table-wrap{overflow-x:auto;margin:0 calc(-1 * var(--card-pad));padding:0 var(--card-pad);-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:separate;border-spacing:0}
+th{font-size:var(--fs-xs);font-weight:400;color:var(--muted);text-align:left;padding:0 var(--sp-2) var(--sp-2);border-bottom:1px solid var(--line);white-space:nowrap;letter-spacing:0}
+td{padding:var(--cell-pad);border-bottom:1px solid var(--line-soft);vertical-align:middle;transition:background .12s}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:var(--surface-2)}
+td input,td select,td textarea{width:100%;min-width:6em;min-height:var(--h-input);padding:0 var(--sp-2);border:1px solid transparent;border-radius:var(--r-input);background:transparent;font-size:var(--fs-md);text-overflow:ellipsis;transition:border-color .12s,background .12s}
+td select{-webkit-appearance:none;appearance:none;padding-right:26px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 6px center/14px no-repeat}
+td textarea{display:block;padding:6px var(--sp-2);resize:vertical;overflow-wrap:anywhere;line-height:1.4}
+[data-table^=passwords] td textarea{min-width:15em}
+td input:hover,td select:hover,td textarea:hover{border-color:var(--line-2);background-color:var(--surface)}
+td input:focus,td select:focus,td textarea:focus{border-color:var(--brand);outline:1px solid var(--brand);outline-offset:0;background-color:var(--surface)}
+td input.money{min-width:8.5em;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td input[aria-invalid=true]{border-color:var(--danger);background-color:var(--danger-soft)}
+td.row-actions{width:1%;white-space:nowrap;text-align:right}
+td.row-actions button,.secret button,button.toggle{min-height:var(--h-mini);padding:0 var(--sp-2);border-radius:var(--r-input);font-size:var(--fs-xs)}
+td.row-actions button{border-color:transparent;background:transparent;color:var(--muted)}
+td.row-actions button:hover{background:var(--sunken);border-color:transparent;color:var(--ink)}
+td.row-actions button.danger{background:var(--danger-soft);color:var(--danger)}
+.empty{color:var(--muted);padding:var(--sp-6) var(--sp-4);display:flex;align-items:center;justify-content:center;gap:var(--sp-2);flex-wrap:wrap;border:1px dashed var(--line-2);border-radius:var(--r-ctl);background:var(--surface-2);font-size:var(--fs-sm)}
+
+/* ── 행 머리: 각 행의 첫 칸(구분·분류·항목·관계·날짜·누구)을 강조해 행을 구분한다 ── */
+tbody td:first-child input,tbody td:first-child select{font-weight:600;color:var(--brand);background-color:var(--brand-soft);border-color:transparent}
+tbody td:first-child select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230066cc' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")}
+tbody td:first-child input::placeholder{color:var(--brand);opacity:.5;font-weight:400}
+tbody td:first-child input:hover,tbody td:first-child select:hover{border-color:rgba(0,102,204,.3);background-color:var(--brand-soft)}
+tbody td:first-child input:focus,tbody td:first-child select:focus{border-color:var(--brand);background-color:var(--surface)}
+
+/* ── 합계 · D-day ── */
+.totals{display:flex;gap:var(--sp-2);flex-wrap:wrap;justify-content:flex-end;padding:var(--sp-3) 0 0;margin-top:var(--sp-1);border-top:1px solid var(--line);font-size:var(--fs-sm);color:var(--muted)}
+.totals span{padding:var(--sp-1) var(--sp-3);border-radius:var(--r-pill);background:var(--sunken)}
+.totals b{margin-left:var(--sp-1);color:var(--ink);font-variant-numeric:tabular-nums}
+td[data-field=dday]{white-space:nowrap;padding:var(--cell-pad) var(--sp-2);font-size:var(--fs-sm);font-weight:600;color:var(--brand);font-variant-numeric:tabular-nums}
+
+/* ── 민감 값 ── */
+.secret{display:flex;align-items:center;gap:var(--sp-1);min-width:14em}
+.secret input{flex:1;min-width:0;font-variant-numeric:tabular-nums}
+.secret button,button.toggle{border-color:transparent;background:var(--sunken);color:var(--ink-2)}
+.secret button:hover,button.toggle:hover{border-color:transparent;background:var(--line)}
+.secret .copied{font-size:var(--fs-xs);font-weight:600;color:var(--brand);white-space:nowrap}
+button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* ── PC 전용: 표는 눌리지 않고 카드 안에서 가로 스크롤. 더 볼 열이 있으면 끝에 그림자 ── */
+@media (min-width:641px){
+ .table-wrap{background:linear-gradient(to right,#fff 40%,rgba(255,255,255,0)) left center/48px 100% no-repeat local,linear-gradient(to left,#fff 40%,rgba(255,255,255,0)) right center/48px 100% no-repeat local,radial-gradient(farthest-side at 0 50%,rgba(0,0,0,.1),transparent) left center/14px 100% no-repeat scroll,radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.1),transparent) right center/14px 100% no-repeat scroll}
+ tbody td:first-child{padding-left:0}
+ [data-table=expenses] table{min-width:900px}
+ [data-table=history] table,[data-table=family] table{min-width:760px}
+ [data-table^=passwords] table{min-width:1120px}
+}
+
+/* ── 모바일 전용: 표를 라벨-값 카드로. 세 탭 모두 같은 규칙 ── */
+@media (max-width:640px){
+ .top{gap:var(--sp-2);padding:var(--sp-2) 0;margin-bottom:var(--sp-2)}
+ [role=tablist]{display:flex;margin-bottom:var(--sp-2)}
+ [role=tab]{flex:1;padding:0 var(--sp-1)}
+ .segmented{display:flex;width:100%}
+ .segmented button{flex:1;padding:0 var(--sp-2)}
+ .pw-tools{gap:var(--gap-tight);margin-bottom:var(--sp-2)}
+ #pwSearch{min-width:0;width:100%;padding-left:32px;background-position:11px center;background-size:14px}
+ .section-head{gap:var(--gap-tight);margin-bottom:var(--gap-tight)}
+ .category-filter{padding-right:26px;background-position:right 8px center}
+ .table-wrap{margin:0;padding:0}
+ table,tbody,tr,td{display:block}
+ thead{display:none}
+ tr{border:1px solid var(--line);border-radius:var(--r-ctl);padding:var(--row-pad);margin-bottom:var(--gap-tight);background:var(--row-bg)}
+ tbody tr:hover td{background:transparent}
+ td{display:grid;grid-template-columns:var(--label-w) minmax(0,1fr);align-items:center;gap:var(--sp-1);border:0;padding:var(--cell-pad) 0}
+ td::before{content:attr(data-label);font-size:var(--fs-xs);font-weight:400;color:var(--muted)}
+ /* 카드 머리: 첫 칸은 라벨 없이 카드 폭 전체, 아래에 구분선 */
+ tbody td:first-child{grid-template-columns:minmax(0,1fr);margin:calc(-1 * var(--cell-pad)) 0 var(--sp-1);padding-bottom:var(--sp-1);border-bottom:1px solid var(--line)}
+ tbody td:first-child::before{content:none}
+ tbody td:first-child input,tbody td:first-child select{font-size:var(--fs-lg)}
+ td input,td select,td textarea{min-width:0;padding:0 var(--ctl-pad-x);border-color:var(--line);background-color:var(--surface);line-height:1.3}
+ td textarea{padding:var(--sp-1) var(--ctl-pad-x)}
+ [data-table^=passwords] td textarea,td input.money{min-width:0}
+ td.row-actions{width:auto;display:flex;justify-content:flex-end;gap:var(--sp-1);padding-top:var(--cell-pad)}
+ td.row-actions::before{content:none}
+ td[data-field=dday]{padding:var(--cell-pad) 0;min-height:var(--h-input)}
+ .secret{min-width:0;gap:var(--sp-1)}
+ .secret button{padding:0 var(--ctl-pad-x)}
+ .totals{justify-content:flex-start;padding-top:var(--sp-2)}
+ .totals span{padding:2px var(--sp-2)}
+ .empty{padding:var(--sp-4) var(--sp-3)}
+}

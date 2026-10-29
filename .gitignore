@@ -173,3 +173,5 @@ README.md
 !/favicon.svg
 !/template.enc.json
 !/data.enc.json
+# 화면 소스(공개, 데이터 없음). index.html이 GitHub API로 읽어 합친다.
+!/src/
