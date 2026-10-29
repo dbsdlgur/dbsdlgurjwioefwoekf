@@ -5,7 +5,7 @@
  const PASSWORD_COLUMNS = [
   { field: 'category', label: '분류' }, { field: 'site', label: '사이트' },
   { field: 'link', label: '링크', type: 'links' }, { field: 'loginId', label: 'ID' },
-  { field: 'password', label: 'PW', type: 'secret' },
+  { field: 'password', label: 'PW', type: 'copy' },
   { field: 'note1', label: '비고1' }, { field: 'note2', label: '비고2' }, { field: 'note3', label: '비고3' },
  ];
  const sum = (rows, field) => rows.reduce((total, row) => total + (Number(row[field]) || 0), 0);
@@ -80,14 +80,9 @@
  function secretCell(col, row, onInput) {
   const box = el('div', { className: 'secret' });
   const input = textInput(col, row[col.field]);
-  const copied = el('span', { className: 'copied', role: 'status' });
+  const [copy, copied] = copyButton(() => row[col.field]);
   let revealed = false;
   const reveal = button('보기', () => { revealed = !revealed; box.update(); });
-  const copy = button('복사', async () => {
-   try { await navigator.clipboard.writeText(row[col.field] ?? ''); copied.textContent = '복사됨'; }
-   catch { copied.textContent = '복사 실패'; }
-   setTimeout(() => { copied.textContent = ''; }, 2000);
-  });
   input.addEventListener('input', () => { row[col.field] = input.value; onInput(); });
   box.update = () => {
    const secret = col.secretWhen ? !!col.secretWhen(row) : true;
@@ -101,19 +96,43 @@
   return box;
  }
 
+ // 복사 버튼과 결과 표시. 값은 누를 때 읽는다.
+ function copyButton(value) {
+  const copied = el('span', { className: 'copied', role: 'status' });
+  const copy = button('복사', async () => {
+   try { await navigator.clipboard.writeText(value() ?? ''); copied.textContent = '복사됨'; }
+   catch { copied.textContent = '복사 실패'; }
+   setTimeout(() => { copied.textContent = ''; }, 2000);
+  });
+  return [copy, copied];
+ }
+
+ // 항상 보이는 값 + 복사(PW·링크). 가림 대상이 아니라 .secret과 따로 둔다.
+ function copyCell(input, row, col) {
+  const box = el('div', { className: 'copyable' });
+  box.append(input, ...copyButton(() => row[col.field]));
+  return box;
+ }
+
  function fillCell(td, col, row, ctx) {
   td.dataset.label = col.label;
+  td.dataset.field = col.field;
   const edited = (value, after = ctx.refresh) => { row[col.field] = value; changed(); after(); };
   switch (col.type) {
    case 'links': {
     const input = el('textarea', { value: row[col.field] ?? '', rows: Math.max(1, Math.min(3, (row[col.field] || '').split('\n').length)), autocomplete: 'off', spellcheck: false });
     input.setAttribute('aria-label', col.label);
     input.addEventListener('input', () => edited(input.value));
-    td.append(input);
+    td.append(copyCell(input, row, col));
+    return;
+   }
+   case 'copy': {
+    const input = textInput(col, row[col.field]);
+    input.addEventListener('input', () => edited(input.value));
+    td.append(copyCell(input, row, col));
     return;
    }
    case 'computed': {
-    td.dataset.field = col.field;
     const update = () => { td.textContent = col.compute(row) || '–'; };
     ctx.updaters.push(update);
     update();

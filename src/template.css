@@ -113,13 +113,15 @@ tbody tr:hover td{background:var(--surface-2)}
 td input,td select,td textarea{width:100%;min-width:6em;min-height:var(--h-input);padding:0 var(--sp-2);border:1px solid transparent;border-radius:var(--r-input);background:transparent;font-size:var(--fs-md);text-overflow:ellipsis;transition:border-color .12s,background .12s}
 td select{-webkit-appearance:none;appearance:none;padding-right:26px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 6px center/14px no-repeat}
 td textarea{display:block;padding:6px var(--sp-2);resize:vertical;overflow-wrap:anywhere;line-height:1.4}
-[data-table^=passwords] td textarea{min-width:15em}
+[data-table^=passwords] td textarea{min-width:9em}
+[data-table^=passwords] td[data-field=site] input{min-width:14em}
+[data-table^=passwords] td[data-field=password] input{min-width:8em}
 td input:hover,td select:hover,td textarea:hover{border-color:var(--line-2);background-color:var(--surface)}
 td input:focus,td select:focus,td textarea:focus{border-color:var(--brand);outline:1px solid var(--brand);outline-offset:0;background-color:var(--surface)}
 td input.money{min-width:8.5em;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 td input[aria-invalid=true]{border-color:var(--danger);background-color:var(--danger-soft)}
 td.row-actions{width:1%;white-space:nowrap;text-align:right}
-td.row-actions button,.secret button,button.toggle{min-height:var(--h-mini);padding:0 var(--sp-2);border-radius:var(--r-input);font-size:var(--fs-xs)}
+td.row-actions button,.secret button,.copyable button,button.toggle{min-height:var(--h-mini);padding:0 var(--sp-2);border-radius:var(--r-input);font-size:var(--fs-xs)}
 td.row-actions button{border-color:transparent;background:transparent;color:var(--muted)}
 td.row-actions button:hover{background:var(--sunken);border-color:transparent;color:var(--ink)}
 td.row-actions button.danger{background:var(--danger-soft);color:var(--danger)}
@@ -139,11 +141,12 @@ tbody td:first-child input:focus,tbody td:first-child select:focus{border-color:
 td[data-field=dday]{white-space:nowrap;padding:var(--cell-pad) var(--sp-2);font-size:var(--fs-sm);font-weight:600;color:var(--brand);font-variant-numeric:tabular-nums}
 
 /* ── 민감 값 ── */
-.secret{display:flex;align-items:center;gap:var(--sp-1);min-width:14em}
-.secret input{flex:1;min-width:0;font-variant-numeric:tabular-nums}
-.secret button,button.toggle{border-color:transparent;background:var(--sunken);color:var(--ink-2)}
-.secret button:hover,button.toggle:hover{border-color:transparent;background:var(--line)}
-.secret .copied{font-size:var(--fs-xs);font-weight:600;color:var(--brand);white-space:nowrap}
+.secret,.copyable{display:flex;align-items:center;gap:var(--sp-1);min-width:14em}
+.copyable{min-width:0}
+.secret input,.copyable input,.copyable textarea{flex:1;min-width:0;font-variant-numeric:tabular-nums}
+.secret button,.copyable button,button.toggle{border-color:transparent;background:var(--sunken);color:var(--ink-2)}
+.secret button:hover,.copyable button:hover,button.toggle:hover{border-color:transparent;background:var(--line)}
+.secret .copied,.copyable .copied{font-size:var(--fs-xs);font-weight:600;color:var(--brand);white-space:nowrap}
 button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
 
 /* ── PC 전용: 표는 눌리지 않고 카드 안에서 가로 스크롤. 더 볼 열이 있으면 끝에 그림자 ── */
@@ -183,8 +186,8 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
  td.row-actions{width:auto;display:flex;justify-content:flex-end;gap:var(--sp-1);padding-top:var(--cell-pad)}
  td.row-actions::before{content:none}
  td[data-field=dday]{padding:var(--cell-pad) 0;min-height:var(--h-input)}
- .secret{min-width:0;gap:var(--sp-1)}
- .secret button{padding:0 var(--ctl-pad-x)}
+ .secret,.copyable{min-width:0;gap:var(--sp-1)}
+ .secret button,.copyable button{padding:0 var(--ctl-pad-x)}
  .totals{justify-content:flex-start;padding-top:var(--sp-2)}
  .totals span{padding:2px var(--sp-2)}
  .empty{padding:var(--sp-4) var(--sp-3)}
