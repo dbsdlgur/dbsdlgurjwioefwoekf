@@ -228,20 +228,31 @@
  function renderTable(name) {
   const def = TABLES[name], rows = rowsOf(def);
   const section = document.querySelector(`[data-table="${name}"]`);
-  const head = el('div', { className: 'section-head' });
-  head.append(el('h2', { textContent: def.title }));
+  const head = (def.searchable && section.querySelector('.section-head')) || el('div', { className: 'section-head' });
+  const replaceContent = (...content) => {
+   // Keep the search input attached while typing, including Korean IME composition.
+   if (def.searchable && section.firstElementChild === head) {
+    while (head.nextSibling) head.nextSibling.remove();
+    section.append(...content);
+   } else section.replaceChildren(head, ...content);
+  };
+  if (!def.searchable) head.append(el('h2', { textContent: def.title }));
   let categorySelect;
   if (def.searchable) {
-   categorySelect = el('select', { className: 'category-filter', ariaLabel: def.title + ' 분류 필터' });
+   if (def.view === pwView && searchInput.parentElement !== head) head.prepend(searchInput);
+   categorySelect = head.querySelector('.category-filter');
+   if (!categorySelect) {
+    categorySelect = el('select', { className: 'category-filter', ariaLabel: def.title + ' 분류 필터' });
+    categorySelect.addEventListener('change', () => { categoryFilters[name] = categorySelect.value; renderTable(name); categorySelect.focus(); });
+    head.append(categorySelect);
+   }
    updateCategoryFilter(name, categorySelect);
-   categorySelect.addEventListener('change', () => { categoryFilters[name] = categorySelect.value; renderTable(name); section.querySelector('.category-filter').focus(); });
-   head.append(categorySelect);
   }
   if (def.sortable && rows.length > 1) {
    const asc = sortDir[name] === 'asc';
    head.append(button(asc ? '최근 순으로' : '오래된 순으로', () => { sortDir[name] = asc ? 'desc' : 'asc'; renderTable(name); }));
   }
-  head.append(button('+ 추가', () => addRow(name)));
+  if (!def.searchable || !head.querySelector('button')) head.append(button('+ 추가', () => addRow(name)));
   if (def.view) updateCount(def.view, rows.length);
   let visible = def.sortable ? sortByDate(rows, sortDir[name]) : rows;
   if (def.searchable) visible = visible.filter(row => matchesSearch(row, search) && (!categoryFilters[name] || categoryOf(row) === JSON.parse(categoryFilters[name])));
@@ -249,7 +260,7 @@
    const empty = el('div', { className: 'empty' });
    if (rows.length) empty.append('검색 결과가 없습니다');
    else empty.append('아직 항목이 없습니다 · ', button('추가', () => addRow(name)));
-   section.replaceChildren(head, empty);
+   replaceContent(empty);
    return;
   }
   const totals = def.footer && el('div', { className: 'totals' });
@@ -278,7 +289,7 @@
   }
   const wrap = el('div', { className: 'table-wrap' });
   wrap.append(table);
-  section.replaceChildren(head, wrap, ...(totals ? [totals] : []));
+  replaceContent(wrap, ...(totals ? [totals] : []));
   ctx.refresh();
  }
 
@@ -292,6 +303,7 @@
   pwView = view;
   for (const b of viewButtons) b.setAttribute('aria-pressed', String(b.dataset.view === view));
   for (const [name, def] of Object.entries(TABLES)) if (def.view) document.querySelector(`[data-table="${name}"]`).hidden = def.view !== view;
+  renderPasswords();
   for (const box of document.querySelectorAll('.secret')) box.mask();
  }
  for (const b of viewButtons) b.addEventListener('click', () => selectView(b.dataset.view));
@@ -321,6 +333,7 @@
  // 탭(S-3.1): 마지막 탭은 sessionStorage에 기억한다.
  const tabs = [...document.querySelectorAll('[role=tab]')];
  function selectTab(name, focus = false) {
+  $('.segmented').hidden = name !== 'passwords';
   for (const tab of tabs) {
    const on = tab.dataset.tab === name;
    tab.setAttribute('aria-selected', String(on));

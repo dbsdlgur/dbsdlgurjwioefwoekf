@@ -84,7 +84,8 @@ button:disabled{opacity:.45;cursor:wait}
 
 /* ── 세그먼트(메인 탭 · 본인/가족) ── */
 [role=tablist],.segmented{display:inline-flex;gap:2px;padding:3px;background:var(--sunken);border-radius:var(--r-pill)}
-[role=tablist]{margin:0 0 var(--sp-4)}
+.tab-bar{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);margin-bottom:var(--sp-4)}
+[role=tablist]{margin:0;flex-shrink:0}
 [role=tab],.segmented button{min-height:calc(var(--h-control) - 6px);border:1px solid transparent;border-radius:var(--r-pill);background:none;padding:0 var(--sp-5);color:var(--ink-2);font-size:var(--fs-md);font-weight:400}
 [role=tab]:hover,.segmented button:hover{border-color:transparent;color:var(--ink)}
 [role=tab][aria-selected=true],.segmented button[aria-pressed=true]{background:var(--surface);border-color:var(--line);color:var(--ink);font-weight:600}
@@ -99,8 +100,7 @@ button:disabled{opacity:.45;cursor:wait}
 .category-filter{min-width:0;max-width:14em;flex:0 1 14em;min-height:var(--h-button);padding:0 30px 0 var(--sp-3);border:1px solid var(--line-2);border-radius:var(--r-pill);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 10px center/14px no-repeat;-webkit-appearance:none;appearance:none;color:var(--ink);font-size:var(--fs-sm)}
 
 /* ── 비밀번호 도구 줄 ── */
-.pw-tools{display:flex;gap:var(--sp-2);align-items:center;flex-wrap:wrap;margin-bottom:var(--sp-3)}
-#pwSearch{flex:1;min-width:12em;min-height:var(--h-control);padding:0 var(--sp-3) 0 36px;border:1px solid var(--line-2);border-radius:var(--r-pill);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") 13px center/15px no-repeat;font-size:var(--fs-sm)}
+#pwSearch{flex:1;min-width:0;min-height:var(--h-control);padding:0 var(--sp-3) 0 36px;border:1px solid var(--line-2);border-radius:var(--r-pill);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") 13px center/15px no-repeat;font-size:var(--fs-sm)}
 #pwSearch:focus{outline:2px solid var(--focus-ring);outline-offset:1px;border-color:transparent}
 
 /* ── 표(PC) ── */
@@ -161,14 +161,16 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 /* ── 모바일 전용: 표를 라벨-값 카드로. 세 탭 모두 같은 규칙 ── */
 @media (max-width:640px){
  .top{gap:var(--sp-2);padding:var(--sp-2) 0;margin-bottom:var(--sp-2)}
- [role=tablist]{display:flex;margin-bottom:var(--sp-2)}
+ .tab-bar{margin-bottom:var(--sp-2)}
+ [role=tablist]{display:flex;min-width:0;flex:1}
  [role=tab]{flex:1;padding:0 var(--sp-1)}
- .segmented{display:flex;width:100%}
- .segmented button{flex:1;padding:0 var(--sp-2)}
- .pw-tools{gap:var(--gap-tight);margin-bottom:var(--sp-2)}
- #pwSearch{min-width:0;width:100%;padding-left:32px;background-position:11px center;background-size:14px}
+ .segmented{display:flex;flex:none}
+ .tab-bar [role=tab],.segmented button{min-width:0;padding:0 var(--sp-1);font-size:var(--fs-sm)}
+ .segmented .count{min-width:1.4em;margin-left:2px;padding:0 4px}
+ #pwSearch{min-width:0;width:0;padding-left:28px;background-position:9px center;background-size:13px}
  .section-head{gap:var(--gap-tight);margin-bottom:var(--gap-tight)}
  .category-filter{padding-right:26px;background-position:right 8px center}
+ [data-table^=passwords] .category-filter{flex:0 1 8em}
  .table-wrap{margin:0;padding:0}
  table,tbody,tr,td{display:block}
  thead{display:none}
