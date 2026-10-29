@@ -15,7 +15,7 @@ async function decryptHTML(payload,key){if(payload.version!==1||payload.kdf!=='P
  $('repoName').textContent=REPO;
  const doc=()=>frame.contentDocument;
  function show(text,error=false){notice=text;noticeError=error;const el=doc()?.getElementById('saveStatus');if(el){el.textContent=text;el.style.color=error?'#a32626':'#486250';el.hidden=!text}}
- function changed(){if(rendering)return;dirty=true;revision++;show('변경값이 있습니다. 저장을 눌러 GitHub에 반영하세요.')}
+ function changed(){if(rendering)return;dirty=true;revision++;if(!busy)show('')}
  function inner(){const api=frame.contentWindow?.vaultApi;if(!api)throw Error('화면을 불러오는 중입니다. 잠시 후 다시 시도하세요.');return api}
  function saveBusy(value){const button=doc()?.getElementById('saveBtn');if(button){button.disabled=value;button.textContent=value?'저장 중…':'저장'}}
  function bindViewer(){doc().getElementById('saveBtn')?.addEventListener('click',()=>save());saveBusy(busy);show(notice,noticeError)}
