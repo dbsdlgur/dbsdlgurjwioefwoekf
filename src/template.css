@@ -217,7 +217,7 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 .history-summary:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
 .history-date{align-self:stretch;display:flex;align-items:center;padding:var(--sp-2);border-right:1px solid var(--line);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .history-content{padding:var(--sp-2) var(--sp-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.history-name{align-self:stretch;align-content:center;padding:var(--sp-2);border-left:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history-name{align-self:stretch;align-content:center;padding:var(--sp-2);border-left:1px solid var(--line);border-right:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .history-marker{padding:0 var(--sp-2);font-size:var(--fs-xs);color:var(--brand)}
 .history-marker::after{content:'＋';display:inline-block;margin-left:var(--sp-1)}
 .history-item[open] .history-marker{font-size:0}
