@@ -24,7 +24,7 @@
  --track-tight:-.022em;
 
  /* 글자 크기: xs 보조 라벨 · sm 버튼/표 머리글(caption) · md 본문/입력 · lg 카드 제목(tagline) · xl 브랜드 */
- --fs-xs:12px;--fs-sm:14px;--fs-md:15px;--fs-lg:21px;--fs-xl:24px;
+ --fs-xs:11px;--fs-sm:13px;--fs-md:14px;--fs-lg:19px;--fs-xl:22px;
  --lh:1.47;
 
  /* 간격(4px 단위) */
@@ -37,7 +37,7 @@
  --r-card:18px;--r-ctl:8px;--r-input:8px;--r-pill:999px;
 
  /* 레이아웃 */
- --page-w:1180px;--page-pad:var(--sp-6);--card-pad:var(--sp-6);--card-gap:var(--sp-5);
+ --page-w:1920px;--page-pad:var(--sp-6);--card-pad:var(--sp-6);--card-gap:var(--sp-5);
  --cell-pad:var(--sp-1);--label-w:5em;
  /* 모바일 카드(표 행) */
  --gap-tight:6px;--row-pad:5px 7px;--row-bg:var(--surface);--ctl-pad-x:6px;
@@ -56,7 +56,7 @@
 /* ── 기본 ── */
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:var(--fs-md)/var(--lh) var(--font);letter-spacing:-.01em;-webkit-font-smoothing:antialiased}
-h1,h2,.brand{font-family:var(--font-display);font-weight:600;letter-spacing:var(--track-tight)}
+h1,h2{font-family:var(--font-display);font-weight:600;letter-spacing:var(--track-tight)}
 button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 ::selection{background:var(--brand-soft)}
 main{max-width:var(--page-w);margin:0 auto;padding:0 var(--page-pad) 64px}
@@ -74,8 +74,7 @@ button:disabled{opacity:.45;cursor:wait}
 
 /* ── 상단 바 ── */
 .top{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;margin-bottom:var(--sp-3);background:var(--frost);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
-.brand{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-xl);line-height:1.1;margin:0}
-.brand::before{content:"";width:calc(var(--h-control) - 8px);height:calc(var(--h-control) - 8px);border-radius:var(--r-input);flex:none;background:var(--ink) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='9' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E") center/55% no-repeat}
+.top .segmented{grid-column:1;grid-row:1}
 #updatedAt{grid-column:2;grid-row:1;color:var(--muted);font-size:var(--fs-xs);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 #updatedAt:empty{display:none}
 .actions{grid-column:3;grid-row:1;display:flex;gap:var(--sp-2)}
@@ -128,11 +127,13 @@ td.row-actions button.danger{background:var(--danger-soft);color:var(--danger)}
 .empty{color:var(--muted);padding:var(--sp-6) var(--sp-4);display:flex;align-items:center;justify-content:center;gap:var(--sp-2);flex-wrap:wrap;border:1px dashed var(--line-2);border-radius:var(--r-ctl);background:var(--surface-2);font-size:var(--fs-sm)}
 
 /* ── 행 머리: 각 행의 첫 칸(구분·분류·항목·관계·날짜·누구)을 강조해 행을 구분한다 ── */
-tbody td:first-child input,tbody td:first-child select{font-weight:600;color:var(--brand);background-color:var(--brand-soft);border-color:transparent}
-tbody td:first-child select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230066cc' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")}
-tbody td:first-child input::placeholder{color:var(--brand);opacity:.5;font-weight:400}
-tbody td:first-child input:hover,tbody td:first-child select:hover{border-color:rgba(0,102,204,.3);background-color:var(--brand-soft)}
-tbody td:first-child input:focus,tbody td:first-child select:focus{border-color:var(--brand);background-color:var(--surface)}
+.section:not([data-table^=passwords]) tbody td:first-child input,.section:not([data-table^=passwords]) tbody td:first-child select{font-weight:600;color:var(--brand);background-color:var(--brand-soft);border-color:transparent}
+.section:not([data-table^=passwords]) tbody td:first-child select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230066cc' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")}
+.section:not([data-table^=passwords]) tbody td:first-child input::placeholder{color:var(--brand);opacity:.5;font-weight:400}
+.section:not([data-table^=passwords]) tbody td:first-child input:hover,.section:not([data-table^=passwords]) tbody td:first-child select:hover{border-color:rgba(0,102,204,.3);background-color:var(--brand-soft)}
+.section:not([data-table^=passwords]) tbody td:first-child input:focus,.section:not([data-table^=passwords]) tbody td:first-child select:focus{border-color:var(--brand);background-color:var(--surface)}
+
+[data-table^=passwords] td[data-field=category] input{color:var(--brand);background-color:var(--brand-soft)}
 
 /* ── 합계 · D-day ── */
 .totals{display:flex;gap:var(--sp-2);flex-wrap:wrap;justify-content:flex-end;padding:var(--sp-3) 0 0;margin-top:var(--sp-1);border-top:1px solid var(--line);font-size:var(--fs-sm);color:var(--muted)}
@@ -152,7 +153,7 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 /* ── PC 전용: 표는 눌리지 않고 카드 안에서 가로 스크롤. 더 볼 열이 있으면 끝에 그림자 ── */
 @media (min-width:641px){
  .table-wrap{background:linear-gradient(to right,#fff 40%,rgba(255,255,255,0)) left center/48px 100% no-repeat local,linear-gradient(to left,#fff 40%,rgba(255,255,255,0)) right center/48px 100% no-repeat local,radial-gradient(farthest-side at 0 50%,rgba(0,0,0,.1),transparent) left center/14px 100% no-repeat scroll,radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.1),transparent) right center/14px 100% no-repeat scroll}
- tbody td:first-child{padding-left:0}
+ .section:not([data-table^=passwords]) tbody td:first-child{padding-left:0}
  [data-table=expenses] table{min-width:900px}
  [data-table=history] table,[data-table=family] table{min-width:760px}
  [data-table^=passwords] table{min-width:1120px}
@@ -161,6 +162,12 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 /* ── 모바일 전용: 표를 라벨-값 카드로. 세 탭 모두 같은 규칙 ── */
 @media (max-width:640px){
  .top{gap:var(--sp-2);padding:var(--sp-2) 0;margin-bottom:var(--sp-2)}
+ .top{grid-template-columns:minmax(0,1fr) auto}
+ .top .segmented{justify-self:start;min-width:0}
+ .top .segmented button{min-height:calc(var(--h-control) - 6px);padding:0 var(--sp-1);font-size:var(--fs-sm)}
+ .top .segmented .count{margin-left:1px;padding:0 2px}
+ .actions{grid-column:2}
+ #updatedAt{grid-column:1/-1;grid-row:2}
  .tab-bar{margin-bottom:var(--sp-2)}
  [role=tablist]{display:flex;min-width:0;flex:1}
  [role=tab]{flex:1;padding:0 var(--sp-1)}
@@ -179,9 +186,9 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
  td{display:grid;grid-template-columns:var(--label-w) minmax(0,1fr);align-items:center;gap:var(--sp-1);border:0;padding:var(--cell-pad) 0}
  td::before{content:attr(data-label);font-size:var(--fs-xs);font-weight:400;color:var(--muted)}
  /* 카드 머리: 첫 칸은 라벨 없이 카드 폭 전체, 아래에 구분선 */
- tbody td:first-child{grid-template-columns:minmax(0,1fr);margin:calc(-1 * var(--cell-pad)) 0 var(--sp-1);padding-bottom:var(--sp-1);border-bottom:1px solid var(--line)}
- tbody td:first-child::before{content:none}
- tbody td:first-child input,tbody td:first-child select{font-size:var(--fs-lg)}
+ .section:not([data-table^=passwords]) tbody td:first-child{grid-template-columns:minmax(0,1fr);margin:calc(-1 * var(--cell-pad)) 0 var(--sp-1);padding-bottom:var(--sp-1);border-bottom:1px solid var(--line)}
+ .section:not([data-table^=passwords]) tbody td:first-child::before{content:none}
+ .section:not([data-table^=passwords]) tbody td:first-child input,.section:not([data-table^=passwords]) tbody td:first-child select{font-size:var(--fs-lg)}
  td input,td select,td textarea{min-width:0;padding:0 var(--ctl-pad-x);border-color:var(--line);background-color:var(--surface);line-height:1.3}
  td textarea{padding:var(--sp-1) var(--ctl-pad-x)}
  [data-table^=passwords] td textarea,td input.money{min-width:0}

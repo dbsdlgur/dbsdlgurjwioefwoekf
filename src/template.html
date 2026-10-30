@@ -9,7 +9,11 @@
 <body>
 <main>
  <div class="top">
-  <p class="brand">개인정보</p>
+  <div class="segmented" role="group" aria-label="전체 구분">
+   <button type="button" data-view="self" aria-pressed="true">본인 <span class="count"></span></button>
+   <button type="button" data-view="family" aria-pressed="false">가족 <span class="count"></span></button>
+   <button type="button" data-view="other" aria-pressed="false">기타 <span class="count"></span></button>
+  </div>
   <span id="updatedAt"></span>
   <div class="actions"><button id="saveBtn" type="button" class="primary">저장</button></div>
  </div>
@@ -19,10 +23,6 @@
   <button role="tab" id="tab-passwords" aria-controls="panel-passwords" data-tab="passwords">비밀번호</button>
   <button role="tab" id="tab-profile" aria-controls="panel-profile" data-tab="profile">개인정보</button>
   <button role="tab" id="tab-history" aria-controls="panel-history" data-tab="history">이력</button>
- </div>
- <div class="segmented" aria-label="비밀번호 구분">
-  <button type="button" data-view="self" aria-pressed="true">본인 <span class="count"></span></button>
-  <button type="button" data-view="family" aria-pressed="false">가족 <span class="count"></span></button>
  </div>
  </div>
  <div role="tabpanel" id="panel-profile" aria-labelledby="tab-profile">
@@ -37,6 +37,7 @@
   <input id="pwSearch" type="search" aria-label="검색" placeholder="분류·사이트·링크·비고1~3 검색 (공백으로 여러 단어)" autocomplete="off">
   <section class="section" data-table="passwordsSelf" aria-label="본인 비밀번호"></section>
   <section class="section" data-table="passwordsFamily" aria-label="가족 비밀번호"></section>
+  <section class="section" data-table="passwordsOther" aria-label="기타 비밀번호"></section>
  </div>
 </main>
 <script id="vault-pure" src="pure.js"></script>

@@ -1,6 +1,6 @@
 
 (() => {
- const TAB_KEY = 'vault.tab';
+ const TAB_KEY = 'vault.tab', VIEW_KEY = 'vault.view';
  const { dday, formatMoney, parseMoney, isValidDate, sortByDate, matchesSearch, migratePasswordLinks } = window.VaultPure;
  const PASSWORD_COLUMNS = [
   { field: 'category', label: '분류' }, { field: 'site', label: '사이트' },
@@ -33,11 +33,13 @@
    { field: 'note2', label: '비고2' }, { field: 'residence', label: '거주지' },
   ] },
   passwordsSelf: { title: '본인', path: ['passwords', 'self'], view: 'self', searchable: true, columns: PASSWORD_COLUMNS },
+  passwordsOther: { title: '기타', path: ['passwords', 'other'], view: 'other', searchable: true, columns: PASSWORD_COLUMNS },
   passwordsFamily: { title: '가족', path: ['passwords', 'family'], view: 'family', searchable: true, columns: [{ field: 'owner', label: '누구' }, ...PASSWORD_COLUMNS] },
  };
  const sortDir = { history: 'desc' };
+ let personalTab = 'passwords';
  let search = '', pwView = 'self';
- const categoryFilters = { passwordsSelf: '', passwordsFamily: '' };
+ const categoryFilters = { passwordsSelf: '', passwordsFamily: '', passwordsOther: '' };
  const categoryOf = row => String(row.category ?? '').trim();
  // 날짜를 고치면 다시 정렬하되, 같은 표 안에서 다음 칸으로 옮겨 입력하는 중에는 미룬다.
  // 표를 다시 그리면 입력 중인 칸이 사라지기 때문이다. 포커스가 표를 벗어날 때 정렬한다.
@@ -57,7 +59,7 @@
   for (const key of ['expenses', 'identity', 'family']) s.profile[key] = Array.isArray(s.profile[key]) ? s.profile[key] : [];
   s.history = Array.isArray(s.history) ? s.history : [];
   s.passwords = { ...s.passwords };
-  for (const key of ['self', 'family']) s.passwords[key] = Array.isArray(s.passwords[key]) ? s.passwords[key].map(migratePasswordLinks) : [];
+  for (const key of ['self', 'family', 'other']) s.passwords[key] = Array.isArray(s.passwords[key]) ? s.passwords[key].map(migratePasswordLinks) : [];
   return s;
  }
 
@@ -304,11 +306,22 @@
   for (const b of viewButtons) b.setAttribute('aria-pressed', String(b.dataset.view === view));
   for (const [name, def] of Object.entries(TABLES)) if (def.view) document.querySelector(`[data-table="${name}"]`).hidden = def.view !== view;
   renderPasswords();
-  for (const box of document.querySelectorAll('.secret')) box.mask();
+  selectTab(view === 'self' ? personalTab : 'passwords');
+  try { sessionStorage.setItem(VIEW_KEY, view); } catch {}
  }
- for (const b of viewButtons) b.addEventListener('click', () => selectView(b.dataset.view));
+ for (const b of viewButtons) {
+  b.addEventListener('click', () => selectView(b.dataset.view));
+  b.addEventListener('keydown', e => {
+   const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+   if (!step) return;
+   e.preventDefault();
+   const next = viewButtons[(viewButtons.indexOf(b) + step + viewButtons.length) % viewButtons.length];
+   selectView(next.dataset.view);
+   next.focus();
+  });
+ }
  searchInput.addEventListener('input', () => { search = searchInput.value; renderPasswords(); });
- selectView(pwView);
+
 
  for (const [name, def] of Object.entries(TABLES)) {
   if (!def.sortable) continue;
@@ -333,8 +346,10 @@
  // 탭(S-3.1): 마지막 탭은 sessionStorage에 기억한다.
  const tabs = [...document.querySelectorAll('[role=tab]')];
  function selectTab(name, focus = false) {
-  $('.segmented').hidden = name !== 'passwords';
+  if (pwView !== 'self' && name !== 'passwords') name = 'passwords';
+  if (pwView === 'self') personalTab = name;
   for (const tab of tabs) {
+   tab.hidden = pwView !== 'self' && tab.dataset.tab !== 'passwords';
    const on = tab.dataset.tab === name;
    tab.setAttribute('aria-selected', String(on));
    tab.tabIndex = on ? 0 : -1;
@@ -342,7 +357,7 @@
    if (on && focus) tab.focus();
   }
   for (const box of document.querySelectorAll('.secret')) box.mask();
-  try { sessionStorage.setItem(TAB_KEY, name); } catch {}
+  if (pwView === 'self') try { sessionStorage.setItem(TAB_KEY, name); } catch {}
  }
  for (const tab of tabs) {
   tab.addEventListener('click', () => selectTab(tab.dataset.tab));
@@ -350,13 +365,17 @@
    const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
    if (!step) return;
    e.preventDefault();
-   const next = tabs[(tabs.indexOf(tab) + step + tabs.length) % tabs.length];
+   const available = tabs.filter(item => !item.hidden);
+   const next = available[(available.indexOf(tab) + step + available.length) % available.length];
    selectTab(next.dataset.tab, true);
   });
  }
  let saved = null;
  try { saved = sessionStorage.getItem(TAB_KEY); } catch {}
- selectTab(tabs.some(t => t.dataset.tab === saved) ? saved : 'passwords');
+ personalTab = tabs.some(t => t.dataset.tab === saved) ? saved : 'passwords';
+ let savedView = null;
+ try { savedView = sessionStorage.getItem(VIEW_KEY); } catch {}
+ selectView(viewButtons.some(b => b.dataset.view === savedView) ? savedView : 'self');
 
  window.vaultApi = {
   load(input) { state = normalize(input); renderAll(); },
