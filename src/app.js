@@ -188,7 +188,7 @@
   const td = el(tag, { className: 'row-actions' });
   const ask = () => {
    const no = button('취소', idle);
-   td.replaceChildren(button('삭제 확인', () => { rows.splice(rows.indexOf(row), 1); changed(); renderTable(name); }, { className: 'danger' }), no);
+   td.replaceChildren(button('삭제 확인', () => { rows.splice(rows.indexOf(row), 1); openEntries.delete(row); changed(); renderTable(name); }, { className: 'danger' }), no);
    no.focus();
   };
   function idle() { td.replaceChildren(button('삭제', ask)); }
@@ -206,11 +206,11 @@
   const row = emptyRow(def);
   if (def.searchable && categoryFilters[name]) row.category = JSON.parse(categoryFilters[name]);
   rowsOf(def).push(row);
-  if (name === 'history' || name === 'diary') openEntries.add(row);
+  openEntries.add(row);
   changed();
   renderTable(name);
-  if (name === 'history' || name === 'diary') {
-   [...document.querySelectorAll('.history-item')].find(item => item.entryRow === row)?.querySelector('input')?.focus();
+  if (def.searchable || name === 'history' || name === 'diary') {
+   [...document.querySelectorAll('.history-item, .password-item')].find(item => item.entryRow === row)?.querySelector('input')?.focus();
    return;
   }
   document.querySelector(`[data-table="${name}"] tbody tr:last-child :is(input, select)`)?.focus();
@@ -274,6 +274,55 @@
   return list;
  }
 
+ // Keep the four frequently used fields editable without opening the remaining fields.
+ function renderPasswordEntries(name, visible, rows, ctx) {
+  const def = TABLES[name];
+  const overviewFields = ['category', 'site', 'loginId', 'password'];
+  const list = el('div', { className: 'password-list' });
+  const headings = el('div', { className: 'password-headings' });
+  headings.setAttribute('aria-hidden', 'true');
+  for (const field of overviewFields) headings.append(el('span', { textContent: def.columns.find(col => col.field === field).label }));
+  list.append(headings);
+  for (const row of visible) {
+   const item = el('article', { className: 'password-item' });
+   item.entryRow = row;
+   const overview = el('div', { className: 'password-overview' });
+   const details = el('div', { className: 'password-details', id: 'password-details-' + newId(), hidden: !openEntries.has(row) });
+   const fieldFor = col => {
+    const field = el('div', { className: 'password-field' });
+    field.append(el('span', { className: 'password-label', textContent: col.label }));
+    if (col.field.startsWith('note')) {
+     field.dataset.field = col.field;
+     const input = el('textarea', { value: row[col.field] ?? '', rows: 2, ariaLabel: col.label });
+     input.addEventListener('input', () => { row[col.field] = input.value; changed(); ctx.refresh(); });
+     field.append(input);
+    } else fillCell(field, col, row, ctx);
+    return field;
+   };
+   for (const field of overviewFields) overview.append(fieldFor(def.columns.find(col => col.field === field)));
+   const toggle = button('', () => {
+    if (details.hidden) openEntries.add(row);
+    else openEntries.delete(row);
+    updateToggle();
+   }, { className: 'password-toggle' });
+   toggle.setAttribute('aria-controls', details.id);
+   function updateToggle() {
+    const open = openEntries.has(row);
+    details.hidden = !open;
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? '세부내용 접기' : '세부내용 펼치기');
+    toggle.textContent = open ? '−' : '＋';
+   }
+   updateToggle();
+   overview.append(toggle);
+   for (const col of def.columns) if (!overviewFields.includes(col.field)) details.append(fieldFor(col));
+   details.append(rowActions(name, rows, row, 'div'));
+   item.append(overview, details);
+   list.append(item);
+  }
+  return list;
+ }
+
  function renderTable(name) {
   const def = TABLES[name], rows = rowsOf(def);
   const section = document.querySelector(`[data-table="${name}"]`);
@@ -330,6 +379,11 @@
    },
    resort: () => pendingSort.add(name),
   };
+  if (def.searchable) {
+   replaceContent(renderPasswordEntries(name, visible, rows, ctx));
+   ctx.refresh();
+   return;
+  }
   if (name === 'history' || name === 'diary') {
    replaceContent(renderEntries(name, visible, rows, ctx));
    ctx.refresh();
