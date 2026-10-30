@@ -26,12 +26,41 @@ window.VaultPure = (() => {
   if (mo < 1 || mo > 12) return false;
   return m[3] === undefined || (d >= 1 && d <= new Date(y, mo, 0).getDate());
  }
- // 표시용 정렬. 원본 배열은 바꾸지 않는다. 빈 날짜는 항상 맨 뒤.
+ // 이력은 연·연월·날짜와 점(.) 표기, 물결표로 연결한 기간을 받는다.
+ function historyDatePart(text) {
+  const m = /^(\d{4})(?:([.-])(\d{1,2})(?:\2(\d{1,2}))?)?$/.exec(text);
+  if (!m) return null;
+  const year = Number(m[1]), month = Number(m[3] || 1), day = Number(m[4] || 1);
+  // UTC를 쓰되 0~99년도도 그대로 계산한다.
+  const last = new Date(0);
+  last.setUTCFullYear(year, month, 0);
+  const lastDay = last.getUTCDate();
+  if (month < 1 || month > 12 || day < 1 || day > lastDay) return null;
+  const key = (mo, d) => `${m[1]}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  return { start: key(month, day), end: key(m[3] ? month : 12, m[4] ? day : m[3] ? lastDay : 31) };
+ }
+ function isValidDateRange(text) {
+  const value = String(text ?? '').trim();
+  if (!value) return true;
+  const parts = value.split(/\s*[~～〜]\s*/);
+  if (parts.length > 2) return false;
+  const first = historyDatePart(parts[0]);
+  if (!first) return false;
+  if (parts.length === 1 || parts[1] === '현재') return true;
+  const last = historyDatePart(parts[1]);
+  return !!last && first.start <= last.end;
+ }
+ // 표시용 정렬. 기간은 시작일 기준, 빈 날짜는 항상 맨 뒤. 저장된 문자열은 그대로 둔다.
  function sortByDate(rows, dir = 'desc') {
   const sign = dir === 'asc' ? 1 : -1;
+  const key = row => {
+   const value = String(row.date ?? '').trim();
+   return historyDatePart(value.split(/[~～〜]/)[0].trim())?.start || value;
+  };
   return [...rows].sort((a, b) => {
-   if (!a.date || !b.date) return !a.date - !b.date;
-   return a.date < b.date ? -sign : a.date > b.date ? sign : 0;
+   const left = key(a), right = key(b);
+   if (!left || !right) return !left - !right;
+   return left < right ? -sign : left > right ? sign : 0;
   });
  }
  // 공백으로 나눈 단어를 분류·사이트·링크·비고에서 찾는다. ID/PW는 제외한다.
@@ -62,5 +91,5 @@ window.VaultPure = (() => {
   row.link = links.join('\n');
   return row;
  }
- return { dday, formatMoney, parseMoney, isValidDate, sortByDate, matchesSearch, migratePasswordLinks };
+ return { dday, formatMoney, parseMoney, isValidDate, isValidDateRange, sortByDate, matchesSearch, migratePasswordLinks };
 })();

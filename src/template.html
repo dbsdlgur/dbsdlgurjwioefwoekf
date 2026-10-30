@@ -21,14 +21,15 @@
  <div class="tab-bar">
  <div role="tablist" aria-label="메뉴">
   <button role="tab" id="tab-passwords" aria-controls="panel-passwords" data-tab="passwords">비밀번호</button>
-  <button role="tab" id="tab-profile" aria-controls="panel-profile" data-tab="profile">개인정보</button>
+  <button role="tab" id="tab-diary" aria-controls="panel-diary" data-tab="diary">일기</button>
   <button role="tab" id="tab-history" aria-controls="panel-history" data-tab="history">이력</button>
  </div>
  </div>
- <div role="tabpanel" id="panel-profile" aria-labelledby="tab-profile">
-  <section class="section" data-table="expenses"></section>
-  <section class="section" data-table="identity"></section>
-  <section class="section" data-table="family"></section>
+ <div role="tabpanel" id="panel-diary" aria-labelledby="tab-diary">
+  <section class="section" aria-label="일기">
+   <input id="diarySearch" type="search" aria-label="일기 검색" placeholder="제목·이름·내용 검색 (공백으로 여러 단어)" autocomplete="off">
+   <div data-table="diary"></div>
+  </section>
  </div>
  <div role="tabpanel" id="panel-history" aria-labelledby="tab-history">
   <section class="section" data-table="history"></section>

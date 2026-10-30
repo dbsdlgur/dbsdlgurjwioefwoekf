@@ -236,3 +236,8 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
  .history-marker::after{font-size:var(--fs-md);margin:0}
  .history-fields{grid-template-columns:minmax(0,1fr);padding:var(--sp-3);gap:var(--sp-2)}
 }
+
+/* 일기는 이력과 같은 펼침 목록을 사용한다. 검색 입력은 목록 재렌더와 분리한다. */
+#diarySearch{display:block;width:100%;min-height:var(--h-control);margin-bottom:var(--sp-3);padding:0 var(--sp-3);border:1px solid var(--line-2);border-radius:var(--r-input);background:var(--surface);font-size:var(--fs-sm)}
+
+.field-hint{font-size:var(--fs-xs);color:var(--muted);overflow-wrap:anywhere}

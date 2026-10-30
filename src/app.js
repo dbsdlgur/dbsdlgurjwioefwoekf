@@ -1,45 +1,31 @@
 
 (() => {
  const TAB_KEY = 'vault.tab', VIEW_KEY = 'vault.view';
- const { dday, formatMoney, parseMoney, isValidDate, sortByDate, matchesSearch, migratePasswordLinks } = window.VaultPure;
+ const { dday, formatMoney, parseMoney, isValidDate, isValidDateRange, sortByDate, matchesSearch, migratePasswordLinks } = window.VaultPure;
  const PASSWORD_COLUMNS = [
   { field: 'category', label: '분류' }, { field: 'site', label: '사이트' },
   { field: 'link', label: '링크', type: 'links' }, { field: 'loginId', label: 'ID' },
   { field: 'password', label: 'PW', type: 'copy' },
   { field: 'note1', label: '비고1' }, { field: 'note2', label: '비고2' }, { field: 'note3', label: '비고3' },
  ];
- const sum = (rows, field) => rows.reduce((total, row) => total + (Number(row[field]) || 0), 0);
  // 표 정의(S-4~S-6). path는 상태 JSON(S-7) 안의 위치다. computed 열은 저장하지 않는다.
  const TABLES = {
-  expenses: { title: '지출', path: ['profile', 'expenses'], columns: [
-   { field: 'kind', label: '구분', type: 'select', options: [['monthly', '월간'], ['total', '총']], initial: 'monthly' },
-   { field: 'item', label: '항목' },
-   { field: 'total', label: '총액', type: 'money' }, { field: 'balance', label: '잔액', type: 'money' },
-   { field: 'monthly', label: '매월 금액', type: 'money' }, { field: 'payDay', label: '출금일', type: 'day' },
-   { field: 'dday', label: 'D-day', type: 'computed', compute: row => dday(row.payDay) },
-   { field: 'note', label: '비고' },
-  ], footer: rows => [['월간 합계', sum(rows, 'monthly')], ['총 잔액', sum(rows, 'balance')]] },
-  identity: { title: '신상', path: ['profile', 'identity'], columns: [
-   { field: 'label', label: '항목' },
-   { field: 'value', label: '값', type: 'secret', secretWhen: row => row.secret },
-   { field: 'secret', label: '민감', type: 'toggle' },
-  ] },
-  family: { title: '가족이력', path: ['profile', 'family'], columns: [
-   { field: 'relation', label: '관계' }, { field: 'name', label: '이름' }, { field: 'birth', label: '생년월일' },
-   { field: 'detail', label: '내용' }, { field: 'note', label: '비고' },
+  diary: { title: '일기', path: ['diary'], sortable: true, summaryField: 'title', columns: [
+   { field: 'date', label: '날짜', type: 'date' }, { field: 'title', label: '제목' },
+   { field: 'name', label: '이름' }, { field: 'content', label: '내용' },
   ] },
   history: { title: '이력', path: ['history'], sortable: true, columns: [
-   { field: 'date', label: '날짜', type: 'date' }, { field: 'content', label: '내용' }, { field: 'note1', label: '비고1' },
+   { field: 'date', label: '날짜', type: 'date', allowRange: true }, { field: 'content', label: '내용' }, { field: 'note1', label: '비고1' },
    { field: 'note2', label: '비고2' }, { field: 'residence', label: '거주지' },
   ] },
   passwordsSelf: { title: '본인', path: ['passwords', 'self'], view: 'self', searchable: true, columns: PASSWORD_COLUMNS },
   passwordsOther: { title: '기타', path: ['passwords', 'other'], view: 'other', searchable: true, columns: PASSWORD_COLUMNS },
   passwordsFamily: { title: '가족', path: ['passwords', 'family'], view: 'family', searchable: true, columns: [{ field: 'owner', label: '누구' }, ...PASSWORD_COLUMNS] },
  };
- const sortDir = { history: 'asc' };
- const openHistory = new Set();
+ const sortDir = { history: 'asc', diary: 'desc' };
+ const openEntries = new Set();
  let personalTab = 'passwords';
- let search = '', pwView = 'self';
+ let search = '', diarySearch = '', pwView = 'self';
  const categoryFilters = { passwordsSelf: '', passwordsFamily: '', passwordsOther: '' };
  const categoryOf = row => String(row.category ?? '').trim();
  // 날짜를 고치면 다시 정렬하되, 같은 표 안에서 다음 칸으로 옮겨 입력하는 중에는 미룬다.
@@ -59,6 +45,7 @@
   s.profile = { ...s.profile };
   for (const key of ['expenses', 'identity', 'family']) s.profile[key] = Array.isArray(s.profile[key]) ? s.profile[key] : [];
   s.history = Array.isArray(s.history) ? s.history : [];
+  s.diary = Array.isArray(s.diary) ? s.diary : [];
   s.passwords = { ...s.passwords };
   for (const key of ['self', 'family', 'other']) s.passwords[key] = Array.isArray(s.passwords[key]) ? s.passwords[key].map(migratePasswordLinks) : [];
   return s;
@@ -164,12 +151,14 @@
     return;
    }
    case 'date': {
-    const input = textInput(col, row[col.field], { placeholder: 'YYYY-MM-DD' });
-    const check = () => input.setAttribute('aria-invalid', String(!isValidDate(input.value)));
+    const input = textInput(col, row[col.field], { placeholder: col.allowRange ? '2006.03~2009.02' : 'YYYY-MM-DD' });
+    const validate = col.allowRange ? isValidDateRange : isValidDate;
+    const check = () => input.setAttribute('aria-invalid', String(!validate(input.value)));
     input.addEventListener('input', () => { check(); edited(input.value); });
     input.addEventListener('change', ctx.resort);
     check();
     td.append(input);
+    if (col.allowRange) td.append(el('span', { className: 'field-hint', textContent: '예: 2006.03~2009.02 · 2024~현재 (시작일 순 정렬)' }));
     return;
    }
    case 'secret': {
@@ -210,14 +199,18 @@
  function addRow(name) {
   const def = TABLES[name];
   if (def.searchable && search) setSearch('');
+  if (name === 'diary') {
+   diarySearch = '';
+   $('#diarySearch').value = '';
+  }
   const row = emptyRow(def);
   if (def.searchable && categoryFilters[name]) row.category = JSON.parse(categoryFilters[name]);
   rowsOf(def).push(row);
-  if (name === 'history') openHistory.add(row);
+  if (name === 'history' || name === 'diary') openEntries.add(row);
   changed();
   renderTable(name);
-  if (name === 'history') {
-   [...document.querySelectorAll('.history-item')].find(item => item.historyRow === row)?.querySelector('input')?.focus();
+  if (name === 'history' || name === 'diary') {
+   [...document.querySelectorAll('.history-item')].find(item => item.entryRow === row)?.querySelector('input')?.focus();
    return;
   }
   document.querySelector(`[data-table="${name}"] tbody tr:last-child :is(input, select)`)?.focus();
@@ -234,32 +227,38 @@
  }
 
  // A compact date/content overview; all existing fields remain editable on expansion.
- function renderHistory(visible, rows, ctx) {
+ function renderEntries(name, visible, rows, ctx) {
+  const def = TABLES[name], summaryField = def.summaryField || 'content';
   const list = el('div', { className: 'history-list' });
   for (const row of visible) {
-   const item = el('details', { className: 'history-item', open: openHistory.has(row) });
-   item.historyRow = row;
+   const item = el('details', { className: 'history-item', open: openEntries.has(row) });
+   item.entryRow = row;
    item.addEventListener('toggle', () => {
-    if (item.isConnected) item.open ? openHistory.add(row) : openHistory.delete(row);
+    if (item.isConnected) item.open ? openEntries.add(row) : openEntries.delete(row);
    });
    const summary = el('summary', { className: 'history-summary' });
    const date = el('span', { className: 'history-date' });
+   const dateValue = el('span');
+   date.append(dateValue);
    const content = el('span', { className: 'history-content' });
    const marker = el('span', { className: 'history-marker', textContent: '펼치기' });
    marker.setAttribute('aria-hidden', 'true');
    summary.append(date, content, marker);
    const update = () => {
-    date.textContent = row.date || '날짜 미입력';
-    content.textContent = row.content || '내용 미입력';
-    content.title = row.content || '';
+    const dateText = String(row.date || '날짜 미입력');
+    const split = dateText.search(/[~～〜]/);
+    if (split < 0) dateValue.textContent = dateText;
+    else dateValue.replaceChildren(dateText.slice(0, split + 1), el('wbr'), dateText.slice(split + 1));
+    content.textContent = row[summaryField] || (summaryField === 'title' ? '제목 미입력' : '내용 미입력');
+    content.title = row[summaryField] || '';
    };
    ctx.updaters.push(update);
    const fields = el('div', { className: 'history-fields' });
-   for (const col of TABLES.history.columns) {
+   for (const col of def.columns) {
     const field = el('label', { className: 'history-field' });
     field.dataset.field = col.field;
     field.append(el('span', { className: 'history-label', textContent: col.label }));
-    if (col.field === 'date') fillCell(field, col, row, ctx);
+    if (col.field === 'date' || (name === 'diary' && col.field !== 'content')) fillCell(field, col, row, ctx);
     else {
      const input = el('textarea', { value: row[col.field] ?? '', rows: col.field === 'content' ? 3 : 2 });
      input.setAttribute('aria-label', col.label);
@@ -268,7 +267,7 @@
     }
     fields.append(field);
    }
-   fields.append(rowActions('history', rows, row, 'div'));
+   fields.append(rowActions(name, rows, row, 'div'));
    item.append(summary, fields);
    list.append(item);
   }
@@ -305,6 +304,10 @@
   if (!def.searchable || !head.querySelector('button')) head.append(button('+ 추가', () => addRow(name)));
   if (def.view) updateCount(def.view, rows.length);
   let visible = def.sortable ? sortByDate(rows, sortDir[name]) : rows;
+  if (name === 'diary') {
+   const terms = diarySearch.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
+   visible = visible.filter(row => terms.every(term => ['title', 'name', 'content'].some(field => String(row[field] ?? '').toLocaleLowerCase().includes(term))));
+  }
   if (def.searchable) visible = visible.filter(row => matchesSearch(row, search) && (!categoryFilters[name] || categoryOf(row) === JSON.parse(categoryFilters[name])));
   if (!visible.length) {
    const empty = el('div', { className: 'empty' });
@@ -327,8 +330,8 @@
    },
    resort: () => pendingSort.add(name),
   };
-  if (name === 'history') {
-   replaceContent(renderHistory(visible, rows, ctx));
+  if (name === 'history' || name === 'diary') {
+   replaceContent(renderEntries(name, visible, rows, ctx));
    ctx.refresh();
    return;
   }
@@ -374,6 +377,7 @@
   });
  }
  searchInput.addEventListener('input', () => { search = searchInput.value; renderPasswords(); });
+ $('#diarySearch').addEventListener('input', event => { diarySearch = event.target.value; renderTable('diary'); });
 
 
  for (const [name, def] of Object.entries(TABLES)) {
@@ -429,13 +433,14 @@
  }
  let saved = null;
  try { saved = sessionStorage.getItem(TAB_KEY); } catch {}
+ if (saved === 'profile') saved = 'diary';
  personalTab = tabs.some(t => t.dataset.tab === saved) ? saved : 'passwords';
  let savedView = null;
  try { savedView = sessionStorage.getItem(VIEW_KEY); } catch {}
  selectView(viewButtons.some(b => b.dataset.view === savedView) ? savedView : 'self');
 
  window.vaultApi = {
-  load(input) { openHistory.clear(); state = normalize(input); renderAll(); },
+  load(input) { openEntries.clear(); state = normalize(input); renderAll(); },
   serialize() { return structuredClone(state); },
   saved(updatedAt) { state.updatedAt = updatedAt; showUpdatedAt(); },
  };
