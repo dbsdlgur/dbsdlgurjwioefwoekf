@@ -15,7 +15,7 @@ async function decryptHTML(payload,key){if(payload.version!==1||payload.kdf!=='P
  const CONFLICT='다른 곳에서 수정된 내용이 있습니다. 저장을 한 번 더 누르면 지금 화면 값으로 덮어씁니다.';
  $('repoName').textContent=REPO;
  const doc=()=>frame.contentDocument;
- function show(text,error=false){notice=text;noticeError=error;const el=doc()?.getElementById('saveStatus');if(el){el.textContent=text;el.style.color=error?'#c4291c':'#6e6e73';el.hidden=!text}}
+ function show(text,error=false){notice=text;noticeError=error;const el=doc()?.getElementById('saveStatus');if(el){const result=error?'error':text.startsWith('저장 완료')?'success':'';el.dataset.result=result;el.textContent=result==='error'?'실패':result==='success'?'성공':'';el.title=text;el.setAttribute('aria-label',result==='error'?'저장 실패: '+text:result==='success'?text:'');el.hidden=!result}}
  function changed(){if(rendering)return;dirty=true;revision++;if(!busy)show('')}
  function inner(){const api=frame.contentWindow?.vaultApi;if(!api)throw Error('화면을 불러오는 중입니다. 잠시 후 다시 시도하세요.');return api}
  function saveBusy(value){const button=doc()?.getElementById('saveBtn');if(button){button.disabled=value;button.textContent=value?'저장 중…':'저장'}}

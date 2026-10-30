@@ -15,7 +15,7 @@
    { field: 'name', label: '이름' }, { field: 'content', label: '내용' },
   ] },
   history: { title: '이력', path: ['history'], sortable: true, columns: [
-   { field: 'date', label: '날짜', type: 'date', allowRange: true }, { field: 'content', label: '내용' }, { field: 'note1', label: '비고1' },
+   { field: 'date', label: '날짜', type: 'date', allowRange: true }, { field: 'content', label: '내용' }, { field: 'name', label: '이름' }, { field: 'note1', label: '비고1' },
    { field: 'note2', label: '비고2' }, { field: 'residence', label: '거주지' },
   ] },
   passwordsSelf: { title: '본인', path: ['passwords', 'self'], view: 'self', searchable: true, columns: PASSWORD_COLUMNS },
@@ -25,9 +25,21 @@
  const sortDir = { history: 'asc', diary: 'desc' };
  const openEntries = new Set();
  let personalTab = 'passwords';
- let search = '', diarySearch = '', pwView = 'self';
+ let search = '', diarySearch = '', historySearch = '', pwView = 'self';
  const categoryFilters = { passwordsSelf: '', passwordsFamily: '', passwordsOther: '' };
  const categoryOf = row => String(row.category ?? '').trim();
+ // Category colors depend only on the trimmed name, never on row order or the active filter.
+ function categoryColors(category) {
+  if (!category) return { background: '#f0f0f2', ink: '#333333' };
+  let hash = 2166136261;
+  for (const char of category) hash = Math.imul(hash ^ char.codePointAt(0), 16777619) >>> 0;
+  const hue = hash % 360, saturation = 45 + (hash >>> 9) % 15, lightness = 91 + (hash >>> 17) % 4;
+  return { background: `hsl(${hue} ${saturation}% ${lightness}%)`, ink: `hsl(${hue} 42% 28%)` };
+ }
+ function matchesFields(row, query, fields) {
+  const terms = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
+  return terms.every(term => fields.some(field => String(row[field] ?? '').toLocaleLowerCase().includes(term)));
+ }
  // 날짜를 고치면 다시 정렬하되, 같은 표 안에서 다음 칸으로 옮겨 입력하는 중에는 미룬다.
  // 표를 다시 그리면 입력 중인 칸이 사라지기 때문이다. 포커스가 표를 벗어날 때 정렬한다.
  const pendingSort = new Set();
@@ -199,9 +211,10 @@
  function addRow(name) {
   const def = TABLES[name];
   if (def.searchable && search) setSearch('');
-  if (name === 'diary') {
-   diarySearch = '';
-   $('#diarySearch').value = '';
+  if (name === 'diary' || name === 'history') {
+   if (name === 'diary') diarySearch = '';
+   else historySearch = '';
+   $('#' + name + 'Search').value = '';
   }
   const row = emptyRow(def);
   if (def.searchable && categoryFilters[name]) row.category = JSON.parse(categoryFilters[name]);
@@ -241,9 +254,10 @@
    const dateValue = el('span');
    date.append(dateValue);
    const content = el('span', { className: 'history-content' });
+   const person = el('span', { className: 'history-name' });
    const marker = el('span', { className: 'history-marker', textContent: '펼치기' });
    marker.setAttribute('aria-hidden', 'true');
-   summary.append(date, content, marker);
+   summary.append(date, content, person, marker);
    const update = () => {
     const dateText = String(row.date || '날짜 미입력');
     const split = dateText.search(/[~～〜]/);
@@ -251,6 +265,8 @@
     else dateValue.replaceChildren(dateText.slice(0, split + 1), el('wbr'), dateText.slice(split + 1));
     content.textContent = row[summaryField] || (summaryField === 'title' ? '제목 미입력' : '내용 미입력');
     content.title = row[summaryField] || '';
+    person.textContent = row.name || '—';
+    person.title = row.name || '이름 미입력';
    };
    ctx.updaters.push(update);
    const fields = el('div', { className: 'history-fields' });
@@ -258,7 +274,7 @@
     const field = el('label', { className: 'history-field' });
     field.dataset.field = col.field;
     field.append(el('span', { className: 'history-label', textContent: col.label }));
-    if (col.field === 'date' || (name === 'diary' && col.field !== 'content')) fillCell(field, col, row, ctx);
+    if (col.field === 'date' || col.field === 'name' || (name === 'diary' && col.field !== 'content')) fillCell(field, col, row, ctx);
     else {
      const input = el('textarea', { value: row[col.field] ?? '', rows: col.field === 'content' ? 3 : 2 });
      input.setAttribute('aria-label', col.label);
@@ -297,6 +313,15 @@
      input.addEventListener('input', () => { row[col.field] = input.value; changed(); ctx.refresh(); });
      field.append(input);
     } else fillCell(field, col, row, ctx);
+    if (col.field === 'category') {
+     const update = () => {
+      const colors = categoryColors(categoryOf(row));
+      field.style.setProperty('--category-bg', colors.background);
+      field.style.setProperty('--category-ink', colors.ink);
+     };
+     ctx.updaters.push(update);
+     update();
+    }
     return field;
    };
    for (const field of overviewFields) overview.append(fieldFor(def.columns.find(col => col.field === field)));
@@ -334,10 +359,8 @@
     section.append(...content);
    } else section.replaceChildren(head, ...content);
   };
-  if (!def.searchable) head.append(el('h2', { textContent: def.title }));
   let categorySelect;
   if (def.searchable) {
-   if (def.view === pwView && searchInput.parentElement !== head) head.prepend(searchInput);
    categorySelect = head.querySelector('.category-filter');
    if (!categorySelect) {
     categorySelect = el('select', { className: 'category-filter', ariaLabel: def.title + ' 분류 필터' });
@@ -353,10 +376,8 @@
   if (!def.searchable || !head.querySelector('button')) head.append(button('+ 추가', () => addRow(name)));
   if (def.view) updateCount(def.view, rows.length);
   let visible = def.sortable ? sortByDate(rows, sortDir[name]) : rows;
-  if (name === 'diary') {
-   const terms = diarySearch.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
-   visible = visible.filter(row => terms.every(term => ['title', 'name', 'content'].some(field => String(row[field] ?? '').toLocaleLowerCase().includes(term))));
-  }
+  if (name === 'diary') visible = visible.filter(row => matchesFields(row, diarySearch, ['title', 'name', 'content']));
+  if (name === 'history') visible = visible.filter(row => matchesFields(row, historySearch, def.columns.map(col => col.field)));
   if (def.searchable) visible = visible.filter(row => matchesSearch(row, search) && (!categoryFilters[name] || categoryOf(row) === JSON.parse(categoryFilters[name])));
   if (!visible.length) {
    const empty = el('div', { className: 'empty' });
@@ -432,6 +453,7 @@
  }
  searchInput.addEventListener('input', () => { search = searchInput.value; renderPasswords(); });
  $('#diarySearch').addEventListener('input', event => { diarySearch = event.target.value; renderTable('diary'); });
+ $('#historySearch').addEventListener('input', event => { historySearch = event.target.value; renderTable('history'); });
 
 
  for (const [name, def] of Object.entries(TABLES)) {

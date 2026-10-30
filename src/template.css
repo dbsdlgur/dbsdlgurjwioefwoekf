@@ -75,11 +75,14 @@ button:disabled{opacity:.45;cursor:wait}
 /* ── 상단 바 ── */
 .top{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;margin-bottom:var(--sp-3);background:var(--frost);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
 .top .segmented{grid-column:1;grid-row:1}
-#updatedAt{grid-column:2;grid-row:1;color:var(--muted);font-size:var(--fs-xs);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.save-meta{grid-column:2;grid-row:1;display:flex;align-items:center;flex-wrap:wrap;gap:var(--sp-2);min-width:0}
+#updatedAt{color:var(--muted);font-size:var(--fs-xs);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 #updatedAt:empty{display:none}
 .actions{grid-column:3;grid-row:1;display:flex;gap:var(--sp-2)}
 .top button{min-height:var(--h-control);padding:0 var(--sp-4);font-size:var(--fs-md)}
-#saveStatus{margin:0 0 var(--sp-3);padding:var(--sp-2) var(--sp-4);border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--line);font-size:var(--fs-sm)}
+#saveStatus{font-size:var(--fs-xs);font-weight:600;white-space:nowrap}
+#saveStatus[data-result=success]{color:#247a3b}
+#saveStatus[data-result=error]{color:var(--danger)}
 
 /* ── 세그먼트(메인 탭 · 본인/가족) ── */
 [role=tablist],.segmented{display:inline-flex;gap:2px;padding:3px;background:var(--sunken);border-radius:var(--r-pill)}
@@ -99,8 +102,10 @@ button:disabled{opacity:.45;cursor:wait}
 .category-filter{min-width:0;max-width:14em;flex:0 1 14em;min-height:var(--h-button);padding:0 30px 0 var(--sp-3);border:1px solid var(--line-2);border-radius:var(--r-pill);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 10px center/14px no-repeat;-webkit-appearance:none;appearance:none;color:var(--ink);font-size:var(--fs-sm)}
 
 /* ── 비밀번호 도구 줄 ── */
-#pwSearch{flex:1;min-width:0;min-height:var(--h-control);padding:0 var(--sp-3) 0 36px;border:1px solid var(--line-2);border-radius:var(--r-pill);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") 13px center/15px no-repeat;font-size:var(--fs-sm)}
-#pwSearch:focus{outline:2px solid var(--focus-ring);outline-offset:1px;border-color:transparent}
+.list-search{display:block;width:100%;min-height:var(--h-control);margin-bottom:var(--sp-3);padding:0 var(--sp-3);border:1px solid var(--line-2);border-radius:var(--r-input);background:var(--surface);font-size:var(--fs-sm)}
+.list-search:focus{outline:2px solid var(--focus-ring);outline-offset:1px;border-color:transparent}
+.section-head{justify-content:flex-end}
+.section-head .category-filter{margin-right:auto}
 
 /* ── 표(PC) ── */
 .table-wrap{overflow-x:auto;margin:0 calc(-1 * var(--card-pad));padding:0 var(--card-pad);-webkit-overflow-scrolling:touch}
@@ -169,14 +174,13 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
  .top .segmented button{min-height:calc(var(--h-control) - 6px);padding:0 var(--sp-1);font-size:var(--fs-sm)}
  .top .segmented .count{margin-left:1px;padding:0 2px}
  .actions{grid-column:2}
- #updatedAt{grid-column:1/-1;grid-row:2}
+ .save-meta{grid-column:1/-1;grid-row:2}
  .tab-bar{margin-bottom:var(--sp-2)}
  [role=tablist]{display:flex;min-width:0;flex:1}
  [role=tab]{flex:1;padding:0 var(--sp-1)}
  .segmented{display:flex;flex:none}
  .tab-bar [role=tab],.segmented button{min-width:0;padding:0 var(--sp-1);font-size:var(--fs-sm)}
  .segmented .count{min-width:1.4em;margin-left:2px;padding:0 4px}
- #pwSearch{min-width:0;width:0;padding-left:28px;background-position:9px center;background-size:13px}
  .section-head{gap:var(--gap-tight);margin-bottom:var(--gap-tight)}
  .category-filter{padding-right:26px;background-position:right 8px center}
  [data-table^=passwords] .category-filter{flex:0 1 8em}
@@ -207,12 +211,13 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 /* 이력: 날짜와 요약을 한 행에, 세부 입력은 펼친 항목 안에만 표시한다. */
 .history-list{border-top:1px solid var(--line)}
 .history-item{border-bottom:1px solid var(--line)}
-.history-summary{display:grid;grid-template-columns:clamp(110px,18%,210px) minmax(0,1fr) auto;align-items:center;min-height:40px;cursor:pointer;list-style:none}
+.history-summary{display:grid;grid-template-columns:clamp(110px,18%,210px) minmax(0,1fr) clamp(64px,12%,160px) auto;align-items:center;min-height:40px;cursor:pointer;list-style:none}
 .history-summary::-webkit-details-marker{display:none}
 .history-summary:hover{background:var(--surface-2)}
 .history-summary:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
 .history-date{align-self:stretch;display:flex;align-items:center;padding:var(--sp-2);border-right:1px solid var(--line);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .history-content{padding:var(--sp-2) var(--sp-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history-name{align-self:stretch;align-content:center;padding:var(--sp-2);border-left:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .history-marker{padding:0 var(--sp-2);font-size:var(--fs-xs);color:var(--brand)}
 .history-marker::after{content:'＋';display:inline-block;margin-left:var(--sp-1)}
 .history-item[open] .history-marker{font-size:0}
@@ -229,7 +234,7 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 .history-fields>.row-actions button{color:var(--muted)}
 .history-fields>.row-actions button.danger{color:var(--danger)}
 @media(max-width:640px){
- .history-summary{grid-template-columns:96px minmax(0,1fr) 28px;min-height:44px}
+ .history-summary{grid-template-columns:96px minmax(0,1fr) 56px 28px;min-height:44px}
  .history-date{padding:var(--sp-1);font-size:var(--fs-sm)}
  .history-content{padding:var(--sp-2)}
  .history-marker{padding:0;text-align:center;font-size:0}
@@ -237,8 +242,7 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
  .history-fields{grid-template-columns:minmax(0,1fr);padding:var(--sp-3);gap:var(--sp-2)}
 }
 
-/* 일기는 이력과 같은 펼침 목록을 사용한다. 검색 입력은 목록 재렌더와 분리한다. */
-#diarySearch{display:block;width:100%;min-height:var(--h-control);margin-bottom:var(--sp-3);padding:0 var(--sp-3);border:1px solid var(--line-2);border-radius:var(--r-input);background:var(--surface);font-size:var(--fs-sm)}
+
 
 .field-hint{font-size:var(--fs-xs);color:var(--muted);overflow-wrap:anywhere}
 
@@ -257,7 +261,7 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 .password-field input:hover,.password-field textarea:hover{border-color:var(--line-2);background:var(--surface)}
 .password-field input:focus,.password-field textarea:focus{border-color:var(--brand);background:var(--surface)}
 .password-field textarea{resize:vertical;overflow-wrap:anywhere;line-height:var(--lh)}
-.password-field[data-field=category] input{color:var(--brand);background:var(--brand-soft)}
+.password-field[data-field=category] input{color:var(--category-ink,var(--brand));background:var(--category-bg,var(--brand-soft))}
 .password-field .copyable{position:relative}
 .password-field .copied{position:absolute;right:0;top:100%;z-index:1;background:var(--surface)}
 .password-toggle{min-height:36px;padding:0;border:0;border-radius:var(--r-input);font-size:var(--fs-lg)}
