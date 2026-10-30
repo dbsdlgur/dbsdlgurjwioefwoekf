@@ -102,7 +102,7 @@ button:disabled{opacity:.45;cursor:wait}
 .category-filter{min-width:0;max-width:14em;flex:0 1 14em;min-height:var(--h-button);padding:0 30px 0 var(--sp-3);border:1px solid var(--line-2);border-radius:var(--r-pill);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 10px center/14px no-repeat;-webkit-appearance:none;appearance:none;color:var(--ink);font-size:var(--fs-sm)}
 
 /* ── 비밀번호 도구 줄 ── */
-.list-search{display:block;width:100%;min-height:var(--h-control);margin-bottom:var(--sp-3);padding:0 var(--sp-3);border:1px solid var(--line-2);border-radius:var(--r-input);background:var(--surface);font-size:var(--fs-sm)}
+.list-search{display:block;width:100%;min-height:var(--h-control);margin-bottom:var(--search-gap,var(--sp-3));padding:0 var(--sp-3);border:1px solid var(--line-2);border-radius:var(--r-input);background:var(--surface);font-size:var(--fs-sm)}
 .list-search:focus{outline:2px solid var(--focus-ring);outline-offset:1px;border-color:transparent}
 .section-head{justify-content:flex-end}
 .section-head .category-filter{margin-right:auto}
@@ -306,6 +306,14 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 html{scroll-padding-top:var(--sticky-stack-height,0px)}
 .app-header{position:sticky;top:0;z-index:30;display:flow-root;background:var(--bg)}
 .app-header .top{position:static}
-.list-search{position:sticky;top:calc(var(--sticky-header-height,0px) + var(--card-pad));z-index:22;box-shadow:0 calc(-1 * var(--card-pad)) 0 var(--surface),calc(-1 * var(--card-pad)) 0 0 var(--surface),var(--card-pad) 0 0 var(--surface),0 var(--sp-3) 0 var(--surface)}
+.list-search{position:sticky;top:calc(var(--sticky-header-height,0px) + var(--card-pad));z-index:22;box-shadow:0 calc(-1 * var(--card-pad)) 0 var(--surface),calc(-1 * var(--card-pad)) 0 0 var(--surface),var(--card-pad) 0 0 var(--surface),0 var(--search-gap,var(--sp-3)) 0 var(--surface)}
 .section-head{position:sticky;top:calc(var(--sticky-header-height,0px) + var(--card-pad) + var(--sticky-search-height,0px));z-index:21;background:var(--surface)}
 .section-head::before{content:'';position:absolute;inset:0 calc(-1 * var(--card-pad)) calc(-1 * var(--sticky-head-gap,var(--sp-3)));z-index:-1;background:var(--surface);border-bottom:1px solid var(--line-2)}
+
+/* PC: 목록을 더 볼 수 있도록 카드와 고정 도구 영역의 세로 여백을 줄인다. */
+@media(min-width:641px){
+ :root{--card-pad:var(--sp-3);--card-gap:var(--sp-3);--search-gap:6px}
+ .top{padding:var(--sp-2) 0;margin-bottom:var(--sp-1)}
+ .tab-bar{margin-bottom:var(--sp-2)}
+ .section-head{margin-bottom:6px}
+}
