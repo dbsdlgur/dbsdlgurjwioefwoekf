@@ -209,19 +209,18 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 }
 
 /* 이력: 날짜와 요약을 한 행에, 세부 입력은 펼친 항목 안에만 표시한다. */
-.history-list{border-top:1px solid var(--line)}
+.history-list{border-top:1px solid var(--line);border-left:1px solid var(--line);border-right:1px solid var(--line)}
 .history-item{border-bottom:1px solid var(--line)}
-.history-summary{display:grid;grid-template-columns:clamp(110px,18%,210px) minmax(0,1fr) clamp(64px,12%,160px) auto;align-items:center;min-height:40px;cursor:pointer;list-style:none}
+.history-summary{display:grid;grid-template-columns:clamp(110px,18%,210px) minmax(0,1fr) clamp(64px,12%,160px) 36px;align-items:center;min-height:40px;cursor:pointer;list-style:none}
 .history-summary::-webkit-details-marker{display:none}
 .history-summary:hover{background:var(--surface-2)}
 .history-summary:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
 .history-date{align-self:stretch;display:flex;align-items:center;padding:var(--sp-2);border-right:1px solid var(--line);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .history-content{padding:var(--sp-2) var(--sp-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .history-name{align-self:stretch;align-content:center;padding:var(--sp-2);border-left:1px solid var(--line);border-right:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.history-marker{padding:0 var(--sp-2);font-size:var(--fs-xs);color:var(--brand)}
-.history-marker::after{content:'＋';display:inline-block;margin-left:var(--sp-1)}
-.history-item[open] .history-marker{font-size:0}
-.history-item[open] .history-marker::after{content:'−';font-size:var(--fs-md)}
+.history-marker{padding:0;text-align:center;color:var(--brand)}
+.history-marker::after{content:'＋';display:inline-block;font-size:var(--fs-lg)}
+.history-item[open] .history-marker::after{content:'−'}
 .history-item[open] .history-summary{background:var(--brand-soft)}
 .history-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-3);padding:var(--sp-4);border-top:1px solid var(--line);background:var(--surface-2)}
 .history-field{display:grid;align-content:start;gap:var(--sp-1);min-width:0}
@@ -238,7 +237,7 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
  .history-date{padding:var(--sp-1);font-size:var(--fs-sm)}
  .history-content{padding:var(--sp-2)}
  .history-marker{padding:0;text-align:center;font-size:0}
- .history-marker::after{font-size:var(--fs-md);margin:0}
+ .history-marker::after{font-size:var(--fs-lg);margin:0}
  .history-fields{grid-template-columns:minmax(0,1fr);padding:var(--sp-3);gap:var(--sp-2)}
 }
 

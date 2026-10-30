@@ -255,7 +255,7 @@
    date.append(dateValue);
    const content = el('span', { className: 'history-content' });
    const person = el('span', { className: 'history-name' });
-   const marker = el('span', { className: 'history-marker', textContent: '펼치기' });
+   const marker = el('span', { className: 'history-marker' });
    marker.setAttribute('aria-hidden', 'true');
    summary.append(date, content, person, marker);
    const update = () => {
