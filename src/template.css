@@ -278,3 +278,22 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
  .password-field input,.password-field textarea{padding:var(--sp-1) var(--ctl-pad-x);font-size:var(--fs-md)}
  .password-details{grid-template-columns:minmax(0,1fr);padding:var(--sp-3);gap:var(--sp-2)}
 }
+
+/* 비밀번호 목록의 가로·세로 구분선: 연한 회색으로 셀 경계를 연결한다. */
+.password-list{--password-line:#e8e8ed;border:1px solid var(--password-line)}
+.password-headings,.password-overview{gap:0;padding:0;align-items:stretch}
+.password-headings{border-bottom-color:var(--password-line)}
+.password-headings>span{padding:var(--sp-2)}
+.password-headings>span+span,.password-headings::after{border-left:1px solid var(--password-line)}
+.password-headings::after{content:''}
+.password-item{border-bottom-color:var(--password-line)}
+.password-item:last-child{border-bottom:0}
+.password-overview>.password-field{display:flex;flex-direction:column;justify-content:center;padding:var(--sp-1)}
+.password-overview>.password-field+.password-field{border-left:1px solid var(--password-line)}
+.password-overview>.password-toggle{border-left:1px solid var(--password-line);border-radius:0}
+.password-details{border-top-color:var(--password-line)}
+@media(max-width:640px){
+ .password-overview>.password-field{padding:var(--sp-2)}
+ .password-overview>.password-field[data-field=loginId]{border-left:0;border-top:1px solid var(--password-line)}
+ .password-overview>.password-field[data-field=password]{border-top:1px solid var(--password-line)}
+}
