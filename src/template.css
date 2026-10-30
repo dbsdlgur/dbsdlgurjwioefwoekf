@@ -154,6 +154,8 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 @media (min-width:641px){
  .table-wrap{background:linear-gradient(to right,#fff 40%,rgba(255,255,255,0)) left center/48px 100% no-repeat local,linear-gradient(to left,#fff 40%,rgba(255,255,255,0)) right center/48px 100% no-repeat local,radial-gradient(farthest-side at 0 50%,rgba(0,0,0,.1),transparent) left center/14px 100% no-repeat scroll,radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.1),transparent) right center/14px 100% no-repeat scroll}
  .section:not([data-table^=passwords]) tbody td:first-child{padding-left:0}
+ /* 열 구분 세로선 */
+ th+th,td+td{border-left:1px solid var(--line)}
  [data-table=expenses] table{min-width:900px}
  [data-table=history] table,[data-table=family] table{min-width:760px}
  [data-table^=passwords] table{min-width:1120px}
@@ -200,4 +202,37 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
  .totals{justify-content:flex-start;padding-top:var(--sp-2)}
  .totals span{padding:2px var(--sp-2)}
  .empty{padding:var(--sp-4) var(--sp-3)}
+}
+
+/* 이력: 날짜와 요약을 한 행에, 세부 입력은 펼친 항목 안에만 표시한다. */
+.history-list{border-top:1px solid var(--line)}
+.history-item{border-bottom:1px solid var(--line)}
+.history-summary{display:grid;grid-template-columns:clamp(110px,18%,210px) minmax(0,1fr) auto;align-items:center;min-height:40px;cursor:pointer;list-style:none}
+.history-summary::-webkit-details-marker{display:none}
+.history-summary:hover{background:var(--surface-2)}
+.history-summary:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.history-date{align-self:stretch;display:flex;align-items:center;padding:var(--sp-2);border-right:1px solid var(--line);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.history-content{padding:var(--sp-2) var(--sp-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history-marker{padding:0 var(--sp-2);font-size:var(--fs-xs);color:var(--brand)}
+.history-marker::after{content:'＋';display:inline-block;margin-left:var(--sp-1)}
+.history-item[open] .history-marker{font-size:0}
+.history-item[open] .history-marker::after{content:'−';font-size:var(--fs-md)}
+.history-item[open] .history-summary{background:var(--brand-soft)}
+.history-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-3);padding:var(--sp-4);border-top:1px solid var(--line);background:var(--surface-2)}
+.history-field{display:grid;align-content:start;gap:var(--sp-1);min-width:0}
+.history-field[data-field=content]{grid-column:1/-1}
+.history-label{font-size:var(--fs-xs);color:var(--muted)}
+.history-field input,.history-field textarea{width:100%;min-width:0;min-height:var(--h-input);padding:var(--sp-2);border:1px solid var(--line-2);border-radius:var(--r-input);background:var(--surface);line-height:var(--lh)}
+.history-field textarea{resize:vertical;overflow-wrap:anywhere}
+.history-field input[aria-invalid=true]{border-color:var(--danger);background:var(--danger-soft)}
+.history-fields>.row-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:var(--sp-2)}
+.history-fields>.row-actions button{color:var(--muted)}
+.history-fields>.row-actions button.danger{color:var(--danger)}
+@media(max-width:640px){
+ .history-summary{grid-template-columns:96px minmax(0,1fr) 28px;min-height:44px}
+ .history-date{padding:var(--sp-1);font-size:var(--fs-sm)}
+ .history-content{padding:var(--sp-2)}
+ .history-marker{padding:0;text-align:center;font-size:0}
+ .history-marker::after{font-size:var(--fs-md);margin:0}
+ .history-fields{grid-template-columns:minmax(0,1fr);padding:var(--sp-3);gap:var(--sp-2)}
 }

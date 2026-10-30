@@ -36,7 +36,8 @@
   passwordsOther: { title: '기타', path: ['passwords', 'other'], view: 'other', searchable: true, columns: PASSWORD_COLUMNS },
   passwordsFamily: { title: '가족', path: ['passwords', 'family'], view: 'family', searchable: true, columns: [{ field: 'owner', label: '누구' }, ...PASSWORD_COLUMNS] },
  };
- const sortDir = { history: 'desc' };
+ const sortDir = { history: 'asc' };
+ const openHistory = new Set();
  let personalTab = 'passwords';
  let search = '', pwView = 'self';
  const categoryFilters = { passwordsSelf: '', passwordsFamily: '', passwordsOther: '' };
@@ -194,8 +195,8 @@
   }
  }
 
- function rowActions(name, rows, row) {
-  const td = el('td', { className: 'row-actions' });
+ function rowActions(name, rows, row, tag = 'td') {
+  const td = el(tag, { className: 'row-actions' });
   const ask = () => {
    const no = button('취소', idle);
    td.replaceChildren(button('삭제 확인', () => { rows.splice(rows.indexOf(row), 1); changed(); renderTable(name); }, { className: 'danger' }), no);
@@ -212,8 +213,13 @@
   const row = emptyRow(def);
   if (def.searchable && categoryFilters[name]) row.category = JSON.parse(categoryFilters[name]);
   rowsOf(def).push(row);
+  if (name === 'history') openHistory.add(row);
   changed();
   renderTable(name);
+  if (name === 'history') {
+   [...document.querySelectorAll('.history-item')].find(item => item.historyRow === row)?.querySelector('input')?.focus();
+   return;
+  }
   document.querySelector(`[data-table="${name}"] tbody tr:last-child :is(input, select)`)?.focus();
  }
 
@@ -223,8 +229,50 @@
   const selected = categoryFilters[name];
   if (selected && !categories.includes(JSON.parse(selected))) categories.push(JSON.parse(selected));
   categories.sort((a, b) => a.localeCompare(b, 'ko'));
-  select.replaceChildren(new Option('전체 분류', ''), ...categories.map(value => new Option(value || '미분류', JSON.stringify(value))));
+  select.replaceChildren(new Option('분류', ''), ...categories.map(value => new Option(value || '미분류', JSON.stringify(value))));
   select.value = selected;
+ }
+
+ // A compact date/content overview; all existing fields remain editable on expansion.
+ function renderHistory(visible, rows, ctx) {
+  const list = el('div', { className: 'history-list' });
+  for (const row of visible) {
+   const item = el('details', { className: 'history-item', open: openHistory.has(row) });
+   item.historyRow = row;
+   item.addEventListener('toggle', () => {
+    if (item.isConnected) item.open ? openHistory.add(row) : openHistory.delete(row);
+   });
+   const summary = el('summary', { className: 'history-summary' });
+   const date = el('span', { className: 'history-date' });
+   const content = el('span', { className: 'history-content' });
+   const marker = el('span', { className: 'history-marker', textContent: '펼치기' });
+   marker.setAttribute('aria-hidden', 'true');
+   summary.append(date, content, marker);
+   const update = () => {
+    date.textContent = row.date || '날짜 미입력';
+    content.textContent = row.content || '내용 미입력';
+    content.title = row.content || '';
+   };
+   ctx.updaters.push(update);
+   const fields = el('div', { className: 'history-fields' });
+   for (const col of TABLES.history.columns) {
+    const field = el('label', { className: 'history-field' });
+    field.dataset.field = col.field;
+    field.append(el('span', { className: 'history-label', textContent: col.label }));
+    if (col.field === 'date') fillCell(field, col, row, ctx);
+    else {
+     const input = el('textarea', { value: row[col.field] ?? '', rows: col.field === 'content' ? 3 : 2 });
+     input.setAttribute('aria-label', col.label);
+     input.addEventListener('input', () => { row[col.field] = input.value; changed(); ctx.refresh(); });
+     field.append(input);
+    }
+    fields.append(field);
+   }
+   fields.append(rowActions('history', rows, row, 'div'));
+   item.append(summary, fields);
+   list.append(item);
+  }
+  return list;
  }
 
  function renderTable(name) {
@@ -279,6 +327,11 @@
    },
    resort: () => pendingSort.add(name),
   };
+  if (name === 'history') {
+   replaceContent(renderHistory(visible, rows, ctx));
+   ctx.refresh();
+   return;
+  }
   const table = el('table');
   const headRow = table.createTHead().insertRow();
   for (const col of def.columns) headRow.append(el('th', { textContent: col.label }));
@@ -326,10 +379,14 @@
  for (const [name, def] of Object.entries(TABLES)) {
   if (!def.sortable) continue;
   const section = document.querySelector(`[data-table="${name}"]`);
-  section.addEventListener('focusout', e => {
-   if (!pendingSort.has(name) || section.contains(e.relatedTarget)) return;
-   pendingSort.delete(name);
-   renderTable(name);
+  section.addEventListener('focusout', () => {
+   // Deletion confirmation replaces its focused button before focusing Cancel.
+   // Wait for that focus transfer so a pending date sort cannot dismiss it.
+   setTimeout(() => {
+    if (!pendingSort.has(name) || section.contains(document.activeElement)) return;
+    pendingSort.delete(name);
+    renderTable(name);
+   }, 0);
   });
  }
 
@@ -378,7 +435,7 @@
  selectView(viewButtons.some(b => b.dataset.view === savedView) ? savedView : 'self');
 
  window.vaultApi = {
-  load(input) { state = normalize(input); renderAll(); },
+  load(input) { openHistory.clear(); state = normalize(input); renderAll(); },
   serialize() { return structuredClone(state); },
   saved(updatedAt) { state.updatedAt = updatedAt; showUpdatedAt(); },
  };
