@@ -8,6 +8,7 @@
 </head>
 <body>
 <main>
+ <header class="app-header">
  <div class="top">
   <div class="segmented" role="group" aria-label="전체 구분">
    <button type="button" data-view="self" aria-pressed="true">본인 <span class="count"></span></button>
@@ -27,6 +28,7 @@
   <button role="tab" id="tab-history" aria-controls="panel-history" data-tab="history">이력</button>
  </div>
  </div>
+ </header>
  <div role="tabpanel" id="panel-diary" aria-labelledby="tab-diary">
   <section class="section" aria-label="일기">
    <input id="diarySearch" class="list-search" type="search" aria-label="일기 검색" placeholder="제목·이름·내용 검색 (공백으로 여러 단어)" autocomplete="off">

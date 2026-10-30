@@ -521,4 +521,28 @@
   saved(updatedAt) { state.updatedAt = updatedAt; showUpdatedAt(); },
  };
  renderAll();
+
+ // Measure the actual rows so saved timestamps, wrapping and viewport changes cannot overlap sticky controls.
+ const appHeader = $('.app-header');
+ function measureStickyControls() {
+  const headerHeight = appHeader.getBoundingClientRect().height;
+  document.documentElement.style.setProperty('--sticky-header-height', headerHeight + 'px');
+  for (const input of document.querySelectorAll('.list-search')) {
+   if (!input.getClientRects().length) continue;
+   const section = input.closest('.section');
+   const searchHeight = input.getBoundingClientRect().height + parseFloat(getComputedStyle(input).marginBottom);
+   section.style.setProperty('--sticky-search-height', searchHeight + 'px');
+   const head = [...section.querySelectorAll('.section-head')].find(node => node.getClientRects().length);
+   if (head) {
+    section.style.setProperty('--sticky-head-gap', getComputedStyle(head).marginBottom);
+    const height = headerHeight + parseFloat(getComputedStyle(section).paddingTop) + searchHeight + head.getBoundingClientRect().height + parseFloat(getComputedStyle(head).marginBottom);
+    document.documentElement.style.setProperty('--sticky-stack-height', height + 'px');
+   }
+  }
+ }
+ const stickyObserver = new ResizeObserver(measureStickyControls);
+ stickyObserver.observe(appHeader);
+ for (const input of document.querySelectorAll('.list-search')) stickyObserver.observe(input);
+ window.addEventListener('resize', measureStickyControls);
+ measureStickyControls();
 })();

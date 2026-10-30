@@ -301,3 +301,11 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
  .password-overview>.password-field[data-field=loginId]{border-left:0;border-top:1px solid var(--password-line)}
  .password-overview>.password-field[data-field=password]{border-top:1px solid var(--password-line)}
 }
+
+/* 상단 내비게이션부터 검색·필터·추가까지 높이에 맞춰 연속으로 고정한다. */
+html{scroll-padding-top:var(--sticky-stack-height,0px)}
+.app-header{position:sticky;top:0;z-index:30;display:flow-root;background:var(--bg)}
+.app-header .top{position:static}
+.list-search{position:sticky;top:calc(var(--sticky-header-height,0px) + var(--card-pad));z-index:22;box-shadow:0 calc(-1 * var(--card-pad)) 0 var(--surface),calc(-1 * var(--card-pad)) 0 0 var(--surface),var(--card-pad) 0 0 var(--surface),0 var(--sp-3) 0 var(--surface)}
+.section-head{position:sticky;top:calc(var(--sticky-header-height,0px) + var(--card-pad) + var(--sticky-search-height,0px));z-index:21;background:var(--surface)}
+.section-head::before{content:'';position:absolute;inset:0 calc(-1 * var(--card-pad)) calc(-1 * var(--sticky-head-gap,var(--sp-3)));z-index:-1;background:var(--surface)}
