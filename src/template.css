@@ -308,4 +308,4 @@ html{scroll-padding-top:var(--sticky-stack-height,0px)}
 .app-header .top{position:static}
 .list-search{position:sticky;top:calc(var(--sticky-header-height,0px) + var(--card-pad));z-index:22;box-shadow:0 calc(-1 * var(--card-pad)) 0 var(--surface),calc(-1 * var(--card-pad)) 0 0 var(--surface),var(--card-pad) 0 0 var(--surface),0 var(--sp-3) 0 var(--surface)}
 .section-head{position:sticky;top:calc(var(--sticky-header-height,0px) + var(--card-pad) + var(--sticky-search-height,0px));z-index:21;background:var(--surface)}
-.section-head::before{content:'';position:absolute;inset:0 calc(-1 * var(--card-pad)) calc(-1 * var(--sticky-head-gap,var(--sp-3)));z-index:-1;background:var(--surface)}
+.section-head::before{content:'';position:absolute;inset:0 calc(-1 * var(--card-pad)) calc(-1 * var(--sticky-head-gap,var(--sp-3)));z-index:-1;background:var(--surface);border-bottom:1px solid var(--line-2)}
