@@ -255,6 +255,7 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 .password-overview::-webkit-details-marker{display:none}
 .password-overview:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
 .password-value{display:block;min-width:0;min-height:var(--h-input);padding:var(--sp-2);border:1px solid transparent;border-radius:var(--r-input);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.password-overview .copyable>.password-value{flex:1}
 .password-field[data-field=category] .password-value{color:var(--category-ink,var(--brand));background:var(--category-bg,var(--brand-soft))}
 .password-overview:hover{background:var(--surface-2)}
 .password-field{min-width:0}

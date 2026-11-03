@@ -332,7 +332,14 @@
     const field = el('span', { className: 'password-field' });
     field.dataset.field = key;
     const value = el('span', { className: 'password-value' });
-    field.append(el('span', { className: 'password-label', textContent: col.label }), value);
+    field.append(el('span', { className: 'password-label', textContent: col.label }));
+    if (key === 'password') {
+     const box = el('span', { className: 'copyable' });
+     const [copy, copied] = copyButton(() => row.password);
+     copy.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); });
+     box.append(value, copy, copied);
+     field.append(box);
+    } else field.append(value);
     const update = () => {
      value.textContent = String(row[key] ?? '') || '—';
      value.title = String(row[key] ?? '');
@@ -524,10 +531,27 @@
  try { savedView = sessionStorage.getItem(VIEW_KEY); } catch {}
  selectView(viewButtons.some(b => b.dataset.view === savedView) ? savedView : 'self');
 
+ function sortPasswordCategories(passwords) {
+  for (const key of ['self', 'family', 'other']) passwords[key].sort((a, b) => {
+   const first = categoryOf(a), second = categoryOf(b);
+   if (!first || !second) return Number(!first) - Number(!second);
+   return first.localeCompare(second, 'ko');
+  });
+ }
+
  window.vaultApi = {
   load(input) { openEntries.clear(); state = normalize(input); renderAll(); },
-  serialize() { return structuredClone(state); },
-  saved(updatedAt) { state.updatedAt = updatedAt; showUpdatedAt(); },
+  serialize() {
+   const snapshot = structuredClone(state);
+   sortPasswordCategories(snapshot.passwords);
+   return snapshot;
+  },
+  saved(updatedAt) {
+   state.updatedAt = updatedAt;
+   sortPasswordCategories(state.passwords);
+   renderPasswords();
+   showUpdatedAt();
+  },
  };
  renderAll();
 
