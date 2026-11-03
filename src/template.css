@@ -245,13 +245,17 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 
 .field-hint{font-size:var(--fs-xs);color:var(--muted);overflow-wrap:anywhere}
 
-/* 비밀번호: 분류·사이트·ID·PW는 항상 표시하고 나머지 항목만 펼친다. */
+/* 비밀번호: 목록은 조회용, 어느 필드를 눌러도 펼쳐 전체 필드를 수정한다. */
 .password-list{--password-cols:minmax(80px,.7fr) minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.2fr) 36px;border-top:1px solid var(--line)}
 .password-headings,.password-overview{display:grid;grid-template-columns:var(--password-cols);align-items:center;gap:var(--sp-2)}
 .password-headings{padding:var(--sp-2) 0;color:var(--muted);font-size:var(--fs-xs);border-bottom:1px solid var(--line)}
 .password-headings>span{padding:0 var(--sp-2)}
 .password-item{border-bottom:1px solid var(--line)}
-.password-overview{padding:var(--sp-1) 0;min-height:44px}
+.password-overview{padding:var(--sp-1) 0;min-height:44px;cursor:pointer;list-style:none}
+.password-overview::-webkit-details-marker{display:none}
+.password-overview:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.password-value{display:block;min-width:0;min-height:var(--h-input);padding:var(--sp-2);border:1px solid transparent;border-radius:var(--r-input);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.password-field[data-field=category] .password-value{color:var(--category-ink,var(--brand));background:var(--category-bg,var(--brand-soft))}
 .password-overview:hover{background:var(--surface-2)}
 .password-field{min-width:0}
 .password-label{display:block;margin-bottom:var(--sp-1);font-size:var(--fs-xs);color:var(--muted)}
@@ -263,8 +267,10 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 .password-field[data-field=category] input{color:var(--category-ink,var(--brand));background:var(--category-bg,var(--brand-soft))}
 .password-field .copyable{position:relative}
 .password-field .copied{position:absolute;right:0;top:100%;z-index:1;background:var(--surface)}
-.password-toggle{min-height:36px;padding:0;border:0;border-radius:var(--r-input);font-size:var(--fs-lg)}
-.password-toggle:hover,.password-toggle[aria-expanded=true]{background:var(--brand-soft)}
+.password-toggle{display:flex;align-items:center;justify-content:center;min-height:36px;padding:0;border:0;border-radius:var(--r-input);font-size:var(--fs-lg);color:var(--brand)}
+.password-toggle::after{content:'＋'}
+.password-item[open]>.password-overview{background:var(--brand-soft)}
+.password-item[open]>.password-overview .password-toggle::after{content:'−'}
 .password-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-3);padding:var(--sp-4);border-top:1px solid var(--line);background:var(--surface-2)}
 .password-details .password-field[data-field=link]{grid-column:1/-1}
 .password-details .password-field input,.password-details .password-field textarea{border-color:var(--line-2);background:var(--surface)}
@@ -278,7 +284,7 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
  .password-overview .password-field[data-field=loginId]{grid-column:1;grid-row:2}
  .password-overview .password-field[data-field=password]{grid-column:2;grid-row:2}
  .password-overview .password-toggle{grid-column:3;grid-row:1/3;min-height:44px}
- .password-field input,.password-field textarea{padding:var(--sp-1) var(--ctl-pad-x);font-size:var(--fs-md)}
+ .password-field input,.password-field textarea,.password-value{padding:var(--sp-1) var(--ctl-pad-x);font-size:var(--fs-md)}
  .password-details{grid-template-columns:minmax(0,1fr);padding:var(--sp-3);gap:var(--sp-2)}
 }
 

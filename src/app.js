@@ -290,7 +290,7 @@
   return list;
  }
 
- // Keep the four frequently used fields editable without opening the remaining fields.
+ // The list is read-only; expand any summary field to edit the complete entry.
  function renderPasswordEntries(name, visible, rows, ctx) {
   const def = TABLES[name];
   const overviewFields = ['category', 'site', 'loginId', 'password'];
@@ -300,10 +300,13 @@
   for (const field of overviewFields) headings.append(el('span', { textContent: def.columns.find(col => col.field === field).label }));
   list.append(headings);
   for (const row of visible) {
-   const item = el('article', { className: 'password-item' });
+   const item = el('details', { className: 'password-item', open: openEntries.has(row) });
    item.entryRow = row;
-   const overview = el('div', { className: 'password-overview' });
-   const details = el('div', { className: 'password-details', id: 'password-details-' + newId(), hidden: !openEntries.has(row) });
+   item.addEventListener('toggle', () => {
+    if (item.isConnected) item.open ? openEntries.add(row) : openEntries.delete(row);
+   });
+   const overview = el('summary', { className: 'password-overview' });
+   const details = el('div', { className: 'password-details' });
    const fieldFor = col => {
     const field = el('div', { className: 'password-field' });
     field.append(el('span', { className: 'password-label', textContent: col.label }));
@@ -324,23 +327,29 @@
     }
     return field;
    };
-   for (const field of overviewFields) overview.append(fieldFor(def.columns.find(col => col.field === field)));
-   const toggle = button('', () => {
-    if (details.hidden) openEntries.add(row);
-    else openEntries.delete(row);
-    updateToggle();
-   }, { className: 'password-toggle' });
-   toggle.setAttribute('aria-controls', details.id);
-   function updateToggle() {
-    const open = openEntries.has(row);
-    details.hidden = !open;
-    toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? '세부내용 접기' : '세부내용 펼치기');
-    toggle.textContent = open ? '−' : '＋';
+   for (const key of overviewFields) {
+    const col = def.columns.find(col => col.field === key);
+    const field = el('span', { className: 'password-field' });
+    field.dataset.field = key;
+    const value = el('span', { className: 'password-value' });
+    field.append(el('span', { className: 'password-label', textContent: col.label }), value);
+    const update = () => {
+     value.textContent = String(row[key] ?? '') || '—';
+     value.title = String(row[key] ?? '');
+     if (key === 'category') {
+      const colors = categoryColors(categoryOf(row));
+      field.style.setProperty('--category-bg', colors.background);
+      field.style.setProperty('--category-ink', colors.ink);
+     }
+    };
+    ctx.updaters.push(update);
+    update();
+    overview.append(field);
    }
-   updateToggle();
-   overview.append(toggle);
-   for (const col of def.columns) if (!overviewFields.includes(col.field)) details.append(fieldFor(col));
+   const marker = el('span', { className: 'password-toggle' });
+   marker.setAttribute('aria-hidden', 'true');
+   overview.append(marker);
+   for (const col of def.columns) details.append(fieldFor(col));
    details.append(rowActions(name, rows, row, 'div'));
    item.append(overview, details);
    list.append(item);
