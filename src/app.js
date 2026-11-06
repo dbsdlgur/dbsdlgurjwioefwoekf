@@ -1,6 +1,6 @@
 
 (() => {
- const TAB_KEY = 'vault.tab', VIEW_KEY = 'vault.view';
+ const TAB_KEY = 'vault.tab', VIEW_KEY = 'vault.view', FAMILY_TAB_KEY = 'vault.familyTab';
  const { dday, formatMoney, parseMoney, isValidDate, isValidDateRange, sortByDate, matchesSearch, migratePasswordLinks } = window.VaultPure;
  const PASSWORD_COLUMNS = [
   { field: 'category', label: '분류' }, { field: 'site', label: '사이트' },
@@ -25,6 +25,7 @@
  const sortDir = { history: 'asc', diary: 'desc' };
  const openEntries = new Set();
  let personalTab = 'passwords';
+ let familyTab = 'passwords';
  let search = '', diarySearch = '', historySearch = '', pwView = 'self';
  const categoryFilters = { passwordsSelf: '', passwordsFamily: '', passwordsOther: '' };
  const categoryOf = row => String(row.category ?? '').trim();
@@ -47,6 +48,7 @@
  let state = normalize({ schema: 1 });
  const $ = sel => document.querySelector(sel);
  const changed = () => parent.vaultHost?.changed();
+ const sizesUI = window.VaultSizes.mount($('#panel-sizes'), () => state.sizes, changed);
  const newId = () => crypto.randomUUID?.() ?? Date.now().toString(36) + Math.random().toString(36).slice(2);
  const el = (tag, props = {}) => Object.assign(document.createElement(tag), props);
  const button = (textContent, onclick, props = {}) => el('button', { type: 'button', textContent, onclick, ...props });
@@ -60,6 +62,7 @@
   s.diary = Array.isArray(s.diary) ? s.diary : [];
   s.passwords = { ...s.passwords };
   for (const key of ['self', 'family', 'other']) s.passwords[key] = Array.isArray(s.passwords[key]) ? s.passwords[key].map(migratePasswordLinks) : [];
+  s.sizes = window.VaultSizes.normalize(s.sizes);
   return s;
  }
 
@@ -453,7 +456,7 @@
   for (const b of viewButtons) b.setAttribute('aria-pressed', String(b.dataset.view === view));
   for (const [name, def] of Object.entries(TABLES)) if (def.view) document.querySelector(`[data-table="${name}"]`).hidden = def.view !== view;
   renderPasswords();
-  selectTab(view === 'self' ? personalTab : 'passwords');
+  selectTab(view === 'self' ? personalTab : view === 'family' ? familyTab : 'passwords');
   try { sessionStorage.setItem(VIEW_KEY, view); } catch {}
  }
  for (const b of viewButtons) {
@@ -488,6 +491,7 @@
 
  function renderAll() {
   for (const name of Object.keys(TABLES)) renderTable(name);
+  if ($('#tab-sizes').getAttribute('aria-selected') === 'true') sizesUI.render(pwView);
   showUpdatedAt();
  }
 
@@ -499,18 +503,22 @@
  // 탭(S-3.1): 마지막 탭은 sessionStorage에 기억한다.
  const tabs = [...document.querySelectorAll('[role=tab]')];
  function selectTab(name, focus = false) {
-  if (pwView !== 'self' && name !== 'passwords') name = 'passwords';
+  const allowed = pwView === 'self' ? ['passwords', 'diary', 'history', 'sizes'] : pwView === 'family' ? ['passwords', 'sizes'] : ['passwords'];
+  if (!allowed.includes(name)) name = 'passwords';
   if (pwView === 'self') personalTab = name;
+  if (pwView === 'family') familyTab = name;
   for (const tab of tabs) {
-   tab.hidden = pwView !== 'self' && tab.dataset.tab !== 'passwords';
+   tab.hidden = !allowed.includes(tab.dataset.tab);
    const on = tab.dataset.tab === name;
    tab.setAttribute('aria-selected', String(on));
    tab.tabIndex = on ? 0 : -1;
    document.getElementById(tab.getAttribute('aria-controls')).hidden = !on;
    if (on && focus) tab.focus();
   }
+  if (name === 'sizes') sizesUI.render(pwView);
   for (const box of document.querySelectorAll('.secret')) box.mask();
   if (pwView === 'self') try { sessionStorage.setItem(TAB_KEY, name); } catch {}
+  if (pwView === 'family') try { sessionStorage.setItem(FAMILY_TAB_KEY, name); } catch {}
  }
  for (const tab of tabs) {
   tab.addEventListener('click', () => selectTab(tab.dataset.tab));
@@ -527,6 +535,7 @@
  try { saved = sessionStorage.getItem(TAB_KEY); } catch {}
  if (saved === 'profile') saved = 'diary';
  personalTab = tabs.some(t => t.dataset.tab === saved) ? saved : 'passwords';
+ try { familyTab = sessionStorage.getItem(FAMILY_TAB_KEY) === 'sizes' ? 'sizes' : 'passwords'; } catch {}
  let savedView = null;
  try { savedView = sessionStorage.getItem(VIEW_KEY); } catch {}
  selectView(viewButtons.some(b => b.dataset.view === savedView) ? savedView : 'self');
