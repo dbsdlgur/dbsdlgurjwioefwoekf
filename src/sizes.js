@@ -45,6 +45,8 @@ window.VaultSizes = (() => {
   const result = { ...object(input) };
   result.id ??= id;
   result.name ??= name;
+  result.summary = { ...object(result.summary) };
+  for (const key of ['top', 'bottom', 'shoes', 'note']) result.summary[key] ??= '';
   result.categories = { ...object(result.categories) };
   for (const [key, def] of Object.entries(CATEGORIES)) {
    const category = { ...object(result.categories[key]) };
@@ -72,9 +74,8 @@ window.VaultSizes = (() => {
  const button = (textContent, onclick, props = {}) => el('button', { type: 'button', textContent, onclick, ...props });
 
  function mount(root, getState, changed) {
-  let scope = 'self', selectedFamily = '', selectedCategory = 'top';
+  let scope = 'self', selectedFamily = '', selectedCategory = 'all';
   let selectedProfile = null, editor = null, diagram = null, detailDiagram = null, backButton = null, picker = null, zoomed = false;
-  const categorySelections = new Map();
   const profileName = item => String(item.name || '').trim() || '이름 미입력';
   function input(label, value, onInput, props = {}) {
    const control = el('input', { type: 'text', autocomplete: 'off', value: value ?? '', ...props });
@@ -90,7 +91,6 @@ window.VaultSizes = (() => {
   function selectCategory(key, zoom = true) {
    selectedCategory = key;
    zoomed = zoom && key !== 'other';
-   categorySelections.set(scope + '/' + selectedProfile.id, key);
    for (const control of root.querySelectorAll('[data-size-category]')) control.setAttribute('aria-pressed', String(control.dataset.sizeCategory === key));
    for (const zone of diagram.querySelectorAll('[data-size-zone]')) zone.classList.toggle('is-selected', zone.dataset.sizeZone === key);
    renderEditor();
@@ -143,6 +143,19 @@ window.VaultSizes = (() => {
    updateDiagramValues();
   }
   function renderEditor() {
+   if (selectedCategory === 'all') {
+    editor.replaceChildren(el('div', { className: 'size-editor-title size-summary-title', textContent: '전체 사이즈' }));
+    const summary = selectedProfile.summary;
+    const fields = el('div', { className: 'size-summary-fields' });
+    for (const [key, label, placeholder] of [['top', '상의', '예: 100(M)'], ['bottom', '하의', '예: 70'], ['shoes', '신발', '예: 280']]) {
+     fields.append(labeled(label, input(label, summary[key], value => { summary[key] = value; }, { placeholder })));
+    }
+    const note = el('textarea', { value: summary.note, rows: 4, ariaLabel: '전체 사이즈 메모' });
+    note.addEventListener('input', () => { summary.note = note.value; changed(); });
+    fields.append(labeled('메모', note));
+    editor.append(fields);
+    return;
+   }
    const def = CATEGORIES[selectedCategory], category = selectedProfile.categories[selectedCategory];
    editor.replaceChildren();
    const title = el('div', { className: 'size-editor-title' });
@@ -271,12 +284,12 @@ window.VaultSizes = (() => {
    });
    detailDiagram = svgEl('svg', { viewBox: '0 0 600 560', class: 'size-detail-body', role: 'img' });
    backButton = button('전체 보기', () => {
-    zoomed = false; renderDiagram();
-    root.querySelector('[data-size-category="' + selectedCategory + '"]').focus({ preventScroll: true });
+    selectCategory('all', false);
+    root.querySelector('[data-size-category="all"]').focus({ preventScroll: true });
    }, { className: 'size-back-button' });
    illustration.append(detailDiagram, backButton, el('p', { className: 'size-diagram-hint', textContent: '부위를 선택하면 확대 도면에 치수가 표시됩니다.' }));
    const controls = el('div', { className: 'size-category-buttons', role: 'group', ariaLabel: '치수 분류' });
-   for (const [key, def] of Object.entries(CATEGORIES)) {
+   for (const [key, def] of [['all', { label: '전체' }], ...Object.entries(CATEGORIES)]) {
     const control = button(def.label, () => selectCategory(key));
     control.dataset.sizeCategory = key;
     control.addEventListener('keydown', event => {
@@ -292,7 +305,7 @@ window.VaultSizes = (() => {
    editor = el('div', { className: 'size-editor' });
    layout.append(illustration, editor);
    section.append(layout);
-   selectCategory(categorySelections.get(scope + '/' + selectedProfile.id) || 'top', false);
+   selectCategory('all', false);
   }
   return { render };
  }
