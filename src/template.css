@@ -346,10 +346,10 @@ html{scroll-padding-top:var(--sticky-stack-height,0px)}
 .size-body [data-size-zone]:hover{filter:brightness(1.08)}
 .size-body [data-size-zone].is-selected{stroke:var(--brand);stroke-width:8}
 .size-body .size-body-detail{fill:none;stroke:#11110d;stroke-width:6;stroke-linecap:round;pointer-events:none}
-.size-diagram-hint{font-size:var(--fs-xs);color:var(--muted);margin:var(--sp-2) 0}
 .size-category-buttons{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--sp-1)}
 .size-category-buttons button{min-width:0;padding:0 var(--sp-2)}
 .size-category-buttons button[aria-pressed=true]{color:var(--brand-ink);background:var(--brand);border-color:var(--brand)}
+.size-illustration>.size-category-buttons{margin-top:var(--sp-2)}
 .size-editor{min-width:0}
 .size-editor-title{display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-3)}
 .size-editor-title h3{margin:0;font-size:var(--fs-lg);font-weight:600}
@@ -381,7 +381,8 @@ html{scroll-padding-top:var(--sticky-stack-height,0px)}
 .size-fixed-label,.size-fixed-unit{display:flex;align-items:center;min-width:0;min-height:var(--h-input);font-size:var(--fs-md);overflow-wrap:anywhere}
 .size-fixed-unit{justify-content:center;color:var(--muted)}
 .size-fixed-badge{font-size:var(--fs-xs);color:var(--muted);white-space:nowrap}
-.size-detail-body{display:block;width:100%;max-width:500px;margin:auto;overflow:visible}
+.size-detail-body{display:block;width:100%;max-width:500px;margin:auto;overflow:visible;cursor:pointer}
+.size-detail-body:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
 .size-layout.is-detail{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}
 .size-detail-body .size-garment{fill:#aaa69a;stroke:#11110d;stroke-width:5;stroke-linejoin:round;stroke-linecap:round}
 .size-detail-body[data-category=bottom] .size-garment{fill:#b7b39d}
@@ -393,5 +394,4 @@ html{scroll-padding-top:var(--sticky-stack-height,0px)}
 .size-dimension rect{fill:var(--surface);fill-opacity:.94;stroke:var(--line);stroke-width:1}
 .size-dimension-label{font-size:22px;fill:var(--muted)}
 .size-dimension-value{font-size:25px;font-weight:600;fill:var(--ink)}
-.size-back-button{margin:var(--sp-2) auto}
 @media(max-width:900px){.size-layout.is-detail{grid-template-columns:minmax(0,1fr)}}

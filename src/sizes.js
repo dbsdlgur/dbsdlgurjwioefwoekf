@@ -75,7 +75,7 @@ window.VaultSizes = (() => {
 
  function mount(root, getState, changed) {
   let scope = 'self', selectedFamily = '', selectedCategory = 'all';
-  let selectedProfile = null, editor = null, diagram = null, detailDiagram = null, backButton = null, picker = null, zoomed = false;
+  let selectedProfile = null, editor = null, diagram = null, detailDiagram = null, picker = null, zoomed = false;
   const profileName = item => String(item.name || '').trim() || '이름 미입력';
   function input(label, value, onInput, props = {}) {
    const control = el('input', { type: 'text', autocomplete: 'off', value: value ?? '', ...props });
@@ -118,10 +118,9 @@ window.VaultSizes = (() => {
    diagram.style.display = expanded ? 'none' : '';
    detailDiagram.style.display = expanded ? '' : 'none';
    root.querySelector('.size-layout').classList.toggle('is-detail', expanded);
-   backButton.hidden = !expanded;
    detailDiagram.replaceChildren();
    if (!expanded) return;
-   detailDiagram.setAttribute('aria-label', CATEGORIES[selectedCategory].label + ' 치수 도면');
+   detailDiagram.setAttribute('aria-label', CATEGORIES[selectedCategory].label + ' 치수 도면, 전체 보기로 돌아가기');
    detailDiagram.dataset.category = selectedCategory;
    const defs = svgEl('defs');
    defs.innerHTML = '<marker id="size-dimension-arrow" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto-start-reverse"><path d="M0 0 7 3.5 0 7Z"/></marker>';
@@ -282,12 +281,17 @@ window.VaultSizes = (() => {
     const zone = event.target.closest('[data-size-zone]');
     if (zone) selectCategory(zone.dataset.sizeZone);
    });
-   detailDiagram = svgEl('svg', { viewBox: '0 0 600 560', class: 'size-detail-body', role: 'img' });
-   backButton = button('전체 보기', () => {
+   detailDiagram = svgEl('svg', { viewBox: '0 0 600 560', class: 'size-detail-body', role: 'button', tabindex: '0' });
+   const returnOverview = () => {
     selectCategory('all', false);
     root.querySelector('[data-size-category="all"]').focus({ preventScroll: true });
-   }, { className: 'size-back-button' });
-   illustration.append(detailDiagram, backButton, el('p', { className: 'size-diagram-hint', textContent: '부위를 선택하면 확대 도면에 치수가 표시됩니다.' }));
+   };
+   detailDiagram.addEventListener('click', returnOverview);
+   detailDiagram.addEventListener('keydown', event => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault(); returnOverview();
+   });
+   illustration.append(detailDiagram);
    const controls = el('div', { className: 'size-category-buttons', role: 'group', ariaLabel: '치수 분류' });
    for (const [key, def] of [['all', { label: '전체' }], ...Object.entries(CATEGORIES)]) {
     const control = button(def.label, () => selectCategory(key));
