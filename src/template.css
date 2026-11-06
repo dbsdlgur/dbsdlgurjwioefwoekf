@@ -338,10 +338,14 @@ html{scroll-padding-top:var(--sticky-stack-height,0px)}
 .size-layout{display:grid;grid-template-columns:minmax(180px,.7fr) minmax(0,1.7fr);gap:var(--sp-6);align-items:start}
 .size-illustration{min-width:0;text-align:center}
 .size-body{display:block;width:100%;max-width:300px;max-height:340px;margin:auto;overflow:visible}
-.size-body-neutral{fill:#c7c7cc;cursor:default}
-.size-body [data-size-zone]{fill:#48484a;stroke:transparent;stroke-width:3;cursor:pointer;transition:fill .15s,stroke .15s}
-.size-body [data-size-zone]:hover{fill:#636366}
-.size-body [data-size-zone].is-selected{fill:var(--brand-soft);stroke:var(--brand)}
+.size-body-neutral{fill:#f3f0e1;stroke:#11110d;stroke-width:7;stroke-linejoin:round;stroke-linecap:round;cursor:default}
+.size-body [data-size-zone]{fill:var(--size-zone-fill);stroke:#11110d;stroke-width:7;stroke-linejoin:round;stroke-linecap:round;cursor:pointer;transition:filter .15s,stroke .15s}
+.size-body [data-size-zone=top]{--size-zone-fill:#aaa69a}
+.size-body [data-size-zone=bottom]{--size-zone-fill:#b7b39d}
+.size-body [data-size-zone=shoes]{--size-zone-fill:#a39f87}
+.size-body [data-size-zone]:hover{filter:brightness(1.08)}
+.size-body [data-size-zone].is-selected{stroke:var(--brand);stroke-width:8}
+.size-body .size-body-detail{fill:none;stroke:#11110d;stroke-width:6;stroke-linecap:round;pointer-events:none}
 .size-diagram-hint{font-size:var(--fs-xs);color:var(--muted);margin:var(--sp-2) 0}
 .size-category-buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp-1)}
 .size-category-buttons button{min-width:0;padding:0 var(--sp-2)}
@@ -349,7 +353,6 @@ html{scroll-padding-top:var(--sticky-stack-height,0px)}
 .size-editor{min-width:0}
 .size-editor-title{display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-3)}
 .size-editor-title h3{margin:0;font-size:var(--fs-lg);font-weight:600}
-.size-metadata{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-2);margin-bottom:var(--sp-4)}
 .size-measurement,.size-measurement-headings{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 64px 48px;gap:var(--sp-2);align-items:center}
 .size-measurement-headings{margin-bottom:var(--sp-1)}
 .size-measurement{margin-bottom:var(--sp-2)}
@@ -367,8 +370,26 @@ html{scroll-padding-top:var(--sticky-stack-height,0px)}
  .size-profile-toolbar h2{flex-basis:100%;margin-bottom:var(--sp-1)}
  .size-profile-toolbar .size-field{max-width:none}
  .size-profile-name{margin-bottom:var(--sp-3)}
- .size-metadata{grid-template-columns:repeat(2,minmax(0,1fr))}
  .size-measurement,.size-measurement-headings{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 42px 34px;gap:var(--sp-1)}
  .size-section input,.size-section select,.size-section textarea{padding:var(--sp-1) var(--ctl-pad-x)}
  .size-measurement-actions button{padding:0 var(--sp-1)}
 }
+
+/* 기본 치수는 고정 항목이며, 측정값만 수정한다. */
+.size-fixed-label,.size-fixed-unit{display:flex;align-items:center;min-width:0;min-height:var(--h-input);font-size:var(--fs-md);overflow-wrap:anywhere}
+.size-fixed-unit{justify-content:center;color:var(--muted)}
+.size-fixed-badge{font-size:var(--fs-xs);color:var(--muted);white-space:nowrap}
+.size-detail-body{display:block;width:100%;max-width:500px;margin:auto;overflow:visible}
+.size-layout.is-detail{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}
+.size-detail-body .size-garment{fill:#aaa69a;stroke:#11110d;stroke-width:5;stroke-linejoin:round;stroke-linecap:round}
+.size-detail-body[data-category=bottom] .size-garment{fill:#b7b39d}
+.size-detail-body[data-category=shoes] .size-garment{fill:#a39f87}
+.size-detail-body .size-insole{fill:#f3f0e1;stroke-width:3}
+.size-detail-body .size-shoe-sole{fill:none;stroke-width:3}
+.size-dimension-line{stroke:var(--brand);stroke-width:2;marker-start:url(#size-dimension-arrow);marker-end:url(#size-dimension-arrow)}
+#size-dimension-arrow path{fill:var(--brand)}
+.size-dimension rect{fill:var(--surface);fill-opacity:.94;stroke:var(--line);stroke-width:1}
+.size-dimension-label{font-size:22px;fill:var(--muted)}
+.size-dimension-value{font-size:25px;font-weight:600;fill:var(--ink)}
+.size-back-button{margin:var(--sp-2) auto}
+@media(max-width:900px){.size-layout.is-detail{grid-template-columns:minmax(0,1fr)}}

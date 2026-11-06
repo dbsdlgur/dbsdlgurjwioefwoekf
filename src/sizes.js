@@ -6,6 +6,39 @@ window.VaultSizes = (() => {
   shoes: { label: '신발', unit: 'mm', fields: ['아웃솔길이', '아웃솔너비', '인솔길이', '인솔너비', '굽높이'] },
   other: { label: '기타', unit: 'cm', fields: [] },
  };
+ const DETAIL_VIEWS = {
+  top: {
+   shape: '<path d="M220 110Q300 155 380 110L500 185 475 235 380 195V430H220V195L125 235 100 185Z"/>',
+   dimensions: [
+    ['어깨너비',220,90,380,90,300,45], ['가슴단면',230,245,370,245,300,283],
+    ['밑단단면',220,450,380,450,300,492], ['소매길이',385,93,507,173,480,90],
+    ['소매통단면',435,155,420,210,470,345], ['소매단면',512,190,487,240,540,267],
+    ['총장',195,115,195,430,100,315],
+   ],
+  },
+  bottom: {
+   shape: '<path d="M220 70H380V480H315L306 228Q300 205 294 228L285 480H220Z"/>',
+   dimensions: [
+    ['허리단면',220,52,380,52,300,25], ['엉덩이단면',230,135,370,135,300,169],
+    ['허벅지단면',222,245,285,245,120,260], ['밑위',403,75,403,225,485,155],
+    ['안쪽기장',300,235,300,478,460,355], ['밑단단면',220,500,285,500,252,525],
+    ['총장',195,70,195,480,95,145],
+   ],
+  },
+  shoes: {
+   shape: '<path d="M160 70Q200 25 240 70Q277 125 255 225L245 350Q200 380 155 350L145 225Q123 125 160 70Z"/><path class="size-insole" d="M172 88Q200 55 228 88Q252 140 235 224L230 332Q200 350 170 332L165 224Q148 140 172 88Z"/><path d="M335 270Q362 282 390 263L412 302Q467 313 535 335Q557 342 557 361V380H330V319Z"/><path class="size-shoe-sole" d="M331 365H556"/>',
+   dimensions: [
+    ['아웃솔길이',115,66,115,355,65,160], ['아웃솔너비',140,190,260,190,205,218],
+    ['인솔길이',200,87,200,331,355,90], ['인솔너비',169,257,231,257,210,290],
+    ['굽높이',575,319,575,380,490,437],
+   ],
+  },
+ };
+ const svgEl = (tag, attributes = {}) => {
+  const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [key, value] of Object.entries(attributes)) node.setAttribute(key, value);
+  return node;
+ };
  const object = value => value && typeof value === 'object' && !Array.isArray(value) ? value : {};
  const newId = () => crypto.randomUUID?.() ?? Date.now().toString(36) + Math.random().toString(36).slice(2);
  function profile(input, id, name) {
@@ -15,8 +48,15 @@ window.VaultSizes = (() => {
   result.categories = { ...object(result.categories) };
   for (const [key, def] of Object.entries(CATEGORIES)) {
    const category = { ...object(result.categories[key]) };
-   for (const field of ['brand', 'model', 'labeledSize', 'note']) category[field] ??= '';
-   if (!Array.isArray(category.measurements)) category.measurements = def.fields.map((label, index) => ({ id: key + '-' + index, label, value: '', unit: def.unit }));
+   category.note ??= '';
+   const existing = Array.isArray(category.measurements) ? category.measurements : [];
+   const used = new Set();
+   const standard = def.fields.map((label, index) => {
+    const found = existing.find(item => !used.has(item) && item.id === key + '-' + index) || existing.find(item => !used.has(item) && item.label === label);
+    if (found) used.add(found);
+    return { ...found, id: key + '-' + index, label, value: found?.value ?? '', unit: found?.unit ?? def.unit, fixed: true };
+   });
+   category.measurements = [...standard, ...existing.filter(item => !used.has(item)).map(item => ({ ...item, fixed: false }))];
    result.categories[key] = category;
   }
   return result;
@@ -33,7 +73,7 @@ window.VaultSizes = (() => {
 
  function mount(root, getState, changed) {
   let scope = 'self', selectedFamily = '', selectedCategory = 'top';
-  let selectedProfile = null, editor = null, diagram = null, picker = null;
+  let selectedProfile = null, editor = null, diagram = null, detailDiagram = null, backButton = null, picker = null, zoomed = false;
   const categorySelections = new Map();
   const profileName = item => String(item.name || '').trim() || '이름 미입력';
   function input(label, value, onInput, props = {}) {
@@ -47,12 +87,60 @@ window.VaultSizes = (() => {
    wrap.append(el('span', { className: 'size-label', textContent: label }), control);
    return wrap;
   }
-  function selectCategory(key) {
+  function selectCategory(key, zoom = true) {
    selectedCategory = key;
+   zoomed = zoom && key !== 'other';
    categorySelections.set(scope + '/' + selectedProfile.id, key);
    for (const control of root.querySelectorAll('[data-size-category]')) control.setAttribute('aria-pressed', String(control.dataset.sizeCategory === key));
    for (const zone of diagram.querySelectorAll('[data-size-zone]')) zone.classList.toggle('is-selected', zone.dataset.sizeZone === key);
    renderEditor();
+   renderDiagram();
+  }
+  function updateDiagramValues() {
+   if (!detailDiagram || !selectedProfile) return;
+   const category = selectedProfile.categories[selectedCategory];
+   for (const node of detailDiagram.querySelectorAll('[data-dimension-value]')) {
+    const measurement = category.measurements.find(item => item.id === node.dataset.dimensionValue);
+    const raw = String(measurement?.value ?? '').trim();
+    const unit = String(measurement?.unit ?? CATEGORIES[selectedCategory].unit);
+    node.textContent = (raw ? raw.length > 12 ? raw.slice(0, 11) + '…' : raw : '—') + ' ' + (unit.length > 8 ? unit.slice(0, 7) + '…' : unit);
+    node.removeAttribute('textLength');
+    const width = Number(node.parentElement.querySelector('rect').getAttribute('width')) - 12;
+    if (node.getComputedTextLength() > width) {
+     node.setAttribute('textLength', width);
+     node.setAttribute('lengthAdjust', 'spacingAndGlyphs');
+    }
+    node.parentElement.querySelector('title').textContent = (measurement?.label || '') + ': ' + (raw || '미입력') + ' ' + unit;
+   }
+  }
+  function renderDiagram() {
+   const view = DETAIL_VIEWS[selectedCategory], expanded = zoomed && !!view;
+   diagram.style.display = expanded ? 'none' : '';
+   detailDiagram.style.display = expanded ? '' : 'none';
+   root.querySelector('.size-layout').classList.toggle('is-detail', expanded);
+   backButton.hidden = !expanded;
+   detailDiagram.replaceChildren();
+   if (!expanded) return;
+   detailDiagram.setAttribute('aria-label', CATEGORIES[selectedCategory].label + ' 치수 도면');
+   detailDiagram.dataset.category = selectedCategory;
+   const defs = svgEl('defs');
+   defs.innerHTML = '<marker id="size-dimension-arrow" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto-start-reverse"><path d="M0 0 7 3.5 0 7Z"/></marker>';
+   const garment = svgEl('g', { class: 'size-garment' });
+   garment.innerHTML = view.shape;
+   detailDiagram.append(defs, garment);
+   for (const [label,x1,y1,x2,y2,tx,ty] of view.dimensions) {
+    const group = svgEl('g', { class: 'size-dimension' });
+    group.append(svgEl('title'), svgEl('line', { x1,y1,x2,y2, class: 'size-dimension-line' }));
+    const width = Math.max(144, label.length * 24 + 20), x = Math.max(width / 2 + 6, Math.min(600 - width / 2 - 6, tx));
+    group.append(svgEl('rect', { x: x-width/2, y: ty-20, width, height: 49, rx: 5 }));
+    const caption = svgEl('text', { x, y: ty, 'text-anchor': 'middle', class: 'size-dimension-label' });
+    caption.textContent = label;
+    const value = svgEl('text', { x, y: ty+23, 'text-anchor': 'middle', class: 'size-dimension-value' });
+    value.dataset.dimensionValue = selectedCategory + '-' + CATEGORIES[selectedCategory].fields.indexOf(label);
+    group.append(caption, value);
+    detailDiagram.append(group);
+   }
+   updateDiagramValues();
   }
   function renderEditor() {
    const def = CATEGORIES[selectedCategory], category = selectedProfile.categories[selectedCategory];
@@ -60,18 +148,15 @@ window.VaultSizes = (() => {
    const title = el('div', { className: 'size-editor-title' });
    title.append(el('h3', { textContent: def.label }), el('span', { className: 'size-unit-hint', textContent: '기본 단위 ' + def.unit }));
    editor.append(title);
-   const metadata = el('div', { className: 'size-metadata' });
-   for (const [key, label] of [['brand', '브랜드'], ['model', '모델명'], ['labeledSize', '표기 사이즈']]) metadata.append(labeled(label, input(label, category[key], value => { category[key] = value; })));
-   editor.append(metadata);
    const headings = el('div', { className: 'size-measurement-headings', ariaHidden: 'true' });
    headings.append(...['치수 항목', '측정값', '단위', ''].map(textContent => el('span', { textContent })));
    editor.append(headings);
    const rows = el('div', { className: 'size-measurements' });
    for (const measurement of category.measurements) {
     const row = el('div', { className: 'size-measurement' });
-    const name = input('치수 항목명', measurement.label, value => { measurement.label = value; updateLabels(); });
-    const value = input('', measurement.value, text => { measurement.value = text; }, { inputMode: 'decimal', placeholder: '미입력' });
-    const unit = input('', measurement.unit, text => { measurement.unit = text; });
+    const name = measurement.fixed ? el('span', { className: 'size-fixed-label', textContent: measurement.label }) : input('치수 항목명', measurement.label, value => { measurement.label = value; updateLabels(); });
+    const value = input('', measurement.value, text => { measurement.value = text; updateDiagramValues(); }, { inputMode: 'decimal', placeholder: '미입력' });
+    const unit = measurement.fixed ? el('span', { className: 'size-fixed-unit', textContent: measurement.unit }) : input('', measurement.unit, text => { measurement.unit = text; });
     function updateLabels() {
      value.setAttribute('aria-label', (measurement.label || '새 치수') + ' 값');
      unit.setAttribute('aria-label', (measurement.label || '새 치수') + ' 단위');
@@ -91,7 +176,8 @@ window.VaultSizes = (() => {
       cancel.focus();
      }, { ariaLabel: (measurement.label || '치수') + ' 삭제' }));
     }
-    idle();
+    if (measurement.fixed) actions.append(el('span', { className: 'size-fixed-badge', textContent: '기본' }));
+    else idle();
     row.append(name, value, unit, actions);
     rows.append(row);
    }
@@ -160,19 +246,35 @@ window.VaultSizes = (() => {
    const layout = el('div', { className: 'size-layout' });
    const illustration = el('div', { className: 'size-illustration' });
    // Static vector only. All user-entered text is assigned through DOM text/value properties.
-   illustration.innerHTML = `<svg viewBox="0 0 360 410" aria-hidden="true" class="size-body">
-    <circle cx="180" cy="50" r="30" class="size-body-neutral"/>
-    <path class="size-body-neutral" d="M52 96 32 83Q25 79 26 86L36 98 18 95Q10 95 12 101L32 108 14 108Q6 110 13 115L32 118 18 123Q12 129 20 130L52 123Z M308 96 328 83Q335 79 334 86L324 98 342 95Q350 95 348 101L328 108 346 108Q354 110 347 115L328 118 342 123Q348 129 340 130L308 123Z"/>
-    <path data-size-zone="top" d="M145 90Q180 120 215 90L304 94V124L218 130V222H142V130L56 124V94Z"/>
-    <path data-size-zone="bottom" d="M142 230H218V359H187L183 265Q180 255 177 265L173 359H142Z"/>
-    <g data-size-zone="shoes"><path d="M142 365Q155 374 173 365L176 390H119Q110 390 116 380Z M187 365Q201 374 218 365L244 380Q250 390 241 390H184Z"/></g>
+   illustration.innerHTML = `<svg viewBox="0 0 1024 1024" aria-hidden="true" class="size-body">
+    <circle cx="512" cy="209" r="66" class="size-body-neutral"/>
+    <g class="size-body-neutral">
+     <path d="M204 310 162 273Q152 267 153 280L169 303 116 297Q108 296 109 304Q110 309 117 310L151 318 113 315Q104 315 105 324Q106 330 115 330L152 331 115 335Q106 336 109 343Q111 348 120 346L152 341 130 354Q122 358 127 363Q130 367 137 364L173 355Q189 355 204 346Z"/>
+     <path d="M176 328Q166 323 168 306" class="size-body-detail"/>
+    </g>
+    <g class="size-body-neutral" transform="translate(1024 0) scale(-1 1)">
+     <path d="M204 310 162 273Q152 267 153 280L169 303 116 297Q108 296 109 304Q110 309 117 310L151 318 113 315Q104 315 105 324Q106 330 115 330L152 331 115 335Q106 336 109 343Q111 348 120 346L152 341 130 354Q122 358 127 363Q130 367 137 364L173 355Q189 355 204 346Z"/>
+     <path d="M176 328Q166 323 168 306" class="size-body-detail"/>
+    </g>
+    <path data-size-zone="top" d="M218 305 469 295Q512 347 555 295L806 305V351L590 360V536H434V360L218 351Z"/>
+    <path data-size-zone="bottom" d="M434 536H590V832H528L516 597Q512 580 508 597L495 832H434Z"/>
+    <g data-size-zone="shoes">
+     <path d="M449 844Q471 853 494 845L501 883V897Q501 907 490 907H397Q385 907 385 896Q385 884 400 877L426 866Z"/>
+     <path d="M574 844Q552 853 530 845L523 883V897Q523 907 534 907H627Q639 907 639 896Q639 884 624 877L598 866Z"/>
+     <path d="M386 894H500M524 894H638" class="size-body-detail"/>
+    </g>
    </svg>`;
    diagram = illustration.querySelector('svg');
    diagram.addEventListener('click', event => {
     const zone = event.target.closest('[data-size-zone]');
     if (zone) selectCategory(zone.dataset.sizeZone);
    });
-   illustration.append(el('p', { className: 'size-diagram-hint', textContent: '그림의 상의·하의·신발을 선택하세요.' }));
+   detailDiagram = svgEl('svg', { viewBox: '0 0 600 560', class: 'size-detail-body', role: 'img' });
+   backButton = button('전체 보기', () => {
+    zoomed = false; renderDiagram();
+    root.querySelector('[data-size-category="' + selectedCategory + '"]').focus({ preventScroll: true });
+   }, { className: 'size-back-button' });
+   illustration.append(detailDiagram, backButton, el('p', { className: 'size-diagram-hint', textContent: '부위를 선택하면 확대 도면에 치수가 표시됩니다.' }));
    const controls = el('div', { className: 'size-category-buttons', role: 'group', ariaLabel: '치수 분류' });
    for (const [key, def] of Object.entries(CATEGORIES)) {
     const control = button(def.label, () => selectCategory(key));
@@ -190,7 +292,7 @@ window.VaultSizes = (() => {
    editor = el('div', { className: 'size-editor' });
    layout.append(illustration, editor);
    section.append(layout);
-   selectCategory(categorySelections.get(scope + '/' + selectedProfile.id) || 'top');
+   selectCategory(categorySelections.get(scope + '/' + selectedProfile.id) || 'top', false);
   }
   return { render };
  }
