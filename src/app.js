@@ -213,73 +213,35 @@
  }
 
  function addRow(name) {
-  const def = TABLES[name];
-  if (def.searchable) { addPasswordModal(name); return; }
-  if (name === 'diary' || name === 'history') {
-   if (name === 'diary') diarySearch = '';
-   else historySearch = '';
-   $('#' + name + 'Search').value = '';
-  }
-  const row = emptyRow(def);
-  rowsOf(def).push(row);
-  openEntries.add(row);
-  changed();
-  renderTable(name);
-  if (def.searchable || name === 'history' || name === 'diary') {
-   [...document.querySelectorAll('.history-item, .password-item')].find(item => item.entryRow === row)?.querySelector('input')?.focus();
-   return;
-  }
-  document.querySelector(`[data-table="${name}"] tbody tr:last-child :is(input, select)`)?.focus();
- }
-
- function addPasswordModal(name) {
   const def = TABLES[name], row = emptyRow(def);
-  if (categoryFilters[name]) row.category = JSON.parse(categoryFilters[name]);
-  const scroll = { x: window.scrollX, y: window.scrollY };
-  const opener = document.activeElement;
-  const dialog = el('dialog', { className: 'password-add-dialog' });
-  dialog.setAttribute('aria-labelledby', 'password-add-title');
-  dialog.setAttribute('aria-describedby', 'password-add-hint');
-  const form = el('form');
-  form.append(el('h2', { id: 'password-add-title', textContent: def.title + ' 비밀번호 추가' }),
-   el('p', { id: 'password-add-hint', textContent: '목록에 추가한 뒤 상단 저장 버튼으로 저장하세요.' }));
-  const fields = el('div', { className: 'password-add-fields' });
-  const inputs = new Map();
-  for (const col of def.columns) {
-   const field = el('label', { className: 'password-field' });
-   field.dataset.field = col.field;
-   const input = col.type === 'links' || col.field.startsWith('note')
-    ? el('textarea', { value: row[col.field], rows: 2, autocomplete: 'off' })
-    : textInput(col, row[col.field]);
-   input.name = col.field;
-   inputs.set(col.field, input);
-   field.append(el('span', { className: 'password-label', textContent: col.label }), input);
-   fields.append(field);
-  }
-  const actions = el('div', { className: 'password-add-actions' });
-  actions.append(button('취소', () => dialog.close()), el('button', { type: 'submit', className: 'primary', textContent: '추가' }));
-  form.append(fields, actions);
-  form.addEventListener('submit', event => {
-   event.preventDefault();
-   for (const [key, input] of inputs) row[key] = input.value;
-   rowsOf(def).push(row);
-   changed();
-   renderTable(name);
-   const matches = matchesSearch(row, search) && (!categoryFilters[name] || categoryOf(row) === JSON.parse(categoryFilters[name]));
-   const status = $('#passwordAddStatus');
-   status.textContent = matches ? '추가했습니다. 상단 저장 버튼으로 저장하세요.' : '추가했습니다. 현재 필터에 맞지 않아 목록에는 표시되지 않습니다. 상단 저장 버튼으로 저장하세요.';
-   status.hidden = false;
-   dialog.close();
+  if (def.searchable && categoryFilters[name]) row.category = JSON.parse(categoryFilters[name]);
+  window.VaultModal.open({
+   title: def.title + (def.searchable ? ' 비밀번호 추가' : ' 추가'),
+   initialFocus: def.searchable ? (row.category ? 'site' : 'category') : 'date',
+   fields: def.columns.map(col => ({
+    key: col.field, label: col.label, value: row[col.field],
+    multiline: col.type === 'links' || col.field.startsWith('note') || col.field === 'content' || col.field === 'residence',
+    wide: col.type === 'links' || col.field === 'content',
+    rows: col.field === 'content' ? (name === 'diary' ? 6 : 3) : 2,
+    placeholder: col.type === 'date' ? (col.allowRange ? '2006.03~2009.02' : 'YYYY-MM-DD') : '',
+    validate: col.type === 'date' ? (col.allowRange ? isValidDateRange : isValidDate) : null,
+    validationMessage: col.allowRange ? '날짜 또는 기간을 확인하세요. 예: 2006.03~2009.02' : '날짜를 확인하세요. 예: 2026-11-09',
+   })),
+   onAdd(values) {
+    Object.assign(row, values);
+    rowsOf(def).push(row);
+    changed();
+    renderTable(name);
+    const matches = def.searchable
+     ? matchesSearch(row, search) && (!categoryFilters[name] || categoryOf(row) === JSON.parse(categoryFilters[name]))
+     : name === 'diary' ? matchesFields(row, diarySearch, ['title', 'name', 'content'])
+      : matchesFields(row, historySearch, def.columns.map(col => col.field));
+    const status = $('#' + (def.searchable ? 'password' : name) + 'AddStatus');
+    status.textContent = matches ? '추가했습니다. 상단 저장 버튼으로 저장하세요.' : '추가했습니다. 현재 필터에 맞지 않아 목록에는 표시되지 않습니다. 상단 저장 버튼으로 저장하세요.';
+    status.hidden = false;
+   },
+   focusAfterClose: () => [...document.querySelectorAll(`[data-table="${name}"] .section-head button`)].find(control => control.textContent === '+ 추가'),
   });
-  dialog.addEventListener('close', () => {
-   dialog.remove();
-   if (opener?.isConnected) opener.focus({ preventScroll: true });
-   window.scrollTo(scroll.x, scroll.y);
-  }, { once: true });
-  dialog.append(form);
-  document.body.append(dialog);
-  dialog.showModal();
-  inputs.get(row.category ? 'site' : 'category').focus({ preventScroll: true });
  }
 
  function updateCategoryFilter(name, select) {

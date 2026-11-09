@@ -195,9 +195,19 @@ window.VaultSizes = (() => {
    }
    if (!category.measurements.length) rows.append(el('p', { className: 'size-empty', textContent: '치수 항목을 추가해 주세요.' }));
    editor.append(rows, button('+ 치수 항목 추가', () => {
-    category.measurements.push({ id: newId(), label: '', value: '', unit: def.unit });
-    changed(); renderEditor();
-    editor.querySelector('.size-measurement:last-child input').focus();
+    window.VaultModal.open({
+     title: def.label + ' 치수 항목 추가',
+     fields: [
+      { key: 'label', label: '치수 항목명' },
+      { key: 'value', label: '측정값' },
+      { key: 'unit', label: '단위', value: def.unit },
+     ],
+     onAdd(values) {
+      category.measurements.push({ id: newId(), ...values });
+      changed(); renderEditor(); updateDiagramValues();
+     },
+     focusAfterClose: () => editor.querySelector('.size-add-measurement'),
+    });
    }, { className: 'size-add-measurement' }));
    const note = el('textarea', { value: category.note, rows: 3 });
    note.setAttribute('aria-label', '사이즈 메모');
@@ -225,10 +235,22 @@ window.VaultSizes = (() => {
     picker.addEventListener('change', () => { selectedFamily = picker.value; render(scope); root.querySelector('select').focus(); });
     toolbar.append(labeled('가족 선택', picker));
     toolbar.append(button('+ 사람 추가', () => {
-     const item = profile(null, newId(), '새 가족');
-     sizes.family.push(item); selectedFamily = item.id;
-     changed(); render(scope);
-     const name = root.querySelector('.size-profile-name input'); name.focus(); name.select();
+     window.VaultModal.open({
+      title: '가족 사이즈 추가',
+      fields: [
+       { key: 'name', label: '프로필 이름', value: '새 가족' },
+       { key: 'top', label: '상의', placeholder: '예: 100(M)' },
+       { key: 'bottom', label: '하의', placeholder: '예: 70' },
+       { key: 'shoes', label: '신발', placeholder: '예: 280' },
+       { key: 'note', label: '메모', multiline: true, wide: true, rows: 3 },
+      ],
+      onAdd({ name, ...summary }) {
+       const item = profile({ summary }, newId(), name);
+       sizes.family.push(item); selectedFamily = item.id;
+       changed(); render(scope);
+      },
+      focusAfterClose: () => root.querySelector('.size-profile-toolbar button'),
+     });
     }));
    } else selectedProfile = sizes.self;
    section.append(toolbar);

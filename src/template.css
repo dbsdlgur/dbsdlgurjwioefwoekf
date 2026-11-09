@@ -72,14 +72,14 @@ button.danger{border-color:transparent;background:var(--danger-soft);color:var(-
 button.danger:hover{border-color:var(--danger)}
 button:disabled{opacity:.45;cursor:wait}
 
-/* 비밀번호 추가: 목록의 필터와 위치를 유지하는 입력창. */
+/* 항목 추가: 목록의 필터와 위치를 유지하는 입력창. */
 body:has(.password-add-dialog[open]){overflow:hidden}
 .password-add-dialog{width:min(680px,calc(100% - 32px));max-height:calc(100dvh - 32px);margin:auto;padding:var(--sp-4);border:1px solid var(--line-2);border-radius:var(--r-card);background:var(--surface);color:var(--ink);overflow:auto;overscroll-behavior:contain}
 .password-add-dialog::backdrop{background:rgba(0,0,0,.35)}
 .password-add-dialog h2{margin:0 0 var(--sp-2);font-size:var(--fs-lg);font-weight:600}
 .password-add-dialog p,.password-add-status{margin:0 0 var(--sp-3);font-size:var(--fs-sm);color:var(--muted)}
 .password-add-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-3);margin-top:var(--sp-4)}
-.password-add-fields [data-field=link]{grid-column:1/-1}
+.password-add-fields .add-field-wide{grid-column:1/-1}
 .password-add-dialog .password-add-fields input,.password-add-dialog .password-add-fields textarea{border-color:var(--line-2);background:var(--surface);min-height:40px}
 .password-add-actions{display:flex;justify-content:flex-end;gap:var(--sp-2);position:sticky;bottom:calc(-1 * var(--sp-4));margin-top:var(--sp-4);padding:var(--sp-3) 0;background:var(--surface)}
 .password-add-actions button{min-height:44px}
