@@ -24,9 +24,6 @@
  };
  const sortDir = { history: 'asc', diary: 'desc' };
  const openEntries = new Set();
- // New entries stay above the filtered results until the user changes the filter.
- // This is view state only: blank fields need not match the current search yet.
- const newPasswordEntries = new Set();
  let personalTab = 'passwords';
  let familyTab = 'passwords';
  let search = '', diarySearch = '', historySearch = '', pwView = 'self';
@@ -207,7 +204,7 @@
   const td = el(tag, { className: 'row-actions' });
   const ask = () => {
    const no = button('취소', idle);
-   td.replaceChildren(button('삭제 확인', () => { rows.splice(rows.indexOf(row), 1); openEntries.delete(row); newPasswordEntries.delete(row); changed(); renderTable(name); }, { className: 'danger' }), no);
+   td.replaceChildren(button('삭제 확인', () => { rows.splice(rows.indexOf(row), 1); openEntries.delete(row); changed(); renderTable(name); }, { className: 'danger' }), no);
    no.focus();
   };
   function idle() { td.replaceChildren(button('삭제', ask)); }
@@ -217,15 +214,14 @@
 
  function addRow(name) {
   const def = TABLES[name];
+  if (def.searchable) { addPasswordModal(name); return; }
   if (name === 'diary' || name === 'history') {
    if (name === 'diary') diarySearch = '';
    else historySearch = '';
    $('#' + name + 'Search').value = '';
   }
   const row = emptyRow(def);
-  if (def.searchable && categoryFilters[name]) row.category = JSON.parse(categoryFilters[name]);
   rowsOf(def).push(row);
-  if (def.searchable) newPasswordEntries.add(row);
   openEntries.add(row);
   changed();
   renderTable(name);
@@ -234,6 +230,56 @@
    return;
   }
   document.querySelector(`[data-table="${name}"] tbody tr:last-child :is(input, select)`)?.focus();
+ }
+
+ function addPasswordModal(name) {
+  const def = TABLES[name], row = emptyRow(def);
+  if (categoryFilters[name]) row.category = JSON.parse(categoryFilters[name]);
+  const scroll = { x: window.scrollX, y: window.scrollY };
+  const opener = document.activeElement;
+  const dialog = el('dialog', { className: 'password-add-dialog' });
+  dialog.setAttribute('aria-labelledby', 'password-add-title');
+  dialog.setAttribute('aria-describedby', 'password-add-hint');
+  const form = el('form');
+  form.append(el('h2', { id: 'password-add-title', textContent: def.title + ' 비밀번호 추가' }),
+   el('p', { id: 'password-add-hint', textContent: '목록에 추가한 뒤 상단 저장 버튼으로 저장하세요.' }));
+  const fields = el('div', { className: 'password-add-fields' });
+  const inputs = new Map();
+  for (const col of def.columns) {
+   const field = el('label', { className: 'password-field' });
+   field.dataset.field = col.field;
+   const input = col.type === 'links' || col.field.startsWith('note')
+    ? el('textarea', { value: row[col.field], rows: 2, autocomplete: 'off' })
+    : textInput(col, row[col.field]);
+   input.name = col.field;
+   inputs.set(col.field, input);
+   field.append(el('span', { className: 'password-label', textContent: col.label }), input);
+   fields.append(field);
+  }
+  const actions = el('div', { className: 'password-add-actions' });
+  actions.append(button('취소', () => dialog.close()), el('button', { type: 'submit', className: 'primary', textContent: '추가' }));
+  form.append(fields, actions);
+  form.addEventListener('submit', event => {
+   event.preventDefault();
+   for (const [key, input] of inputs) row[key] = input.value;
+   rowsOf(def).push(row);
+   changed();
+   renderTable(name);
+   const matches = matchesSearch(row, search) && (!categoryFilters[name] || categoryOf(row) === JSON.parse(categoryFilters[name]));
+   const status = $('#passwordAddStatus');
+   status.textContent = matches ? '추가했습니다. 상단 저장 버튼으로 저장하세요.' : '추가했습니다. 현재 필터에 맞지 않아 목록에는 표시되지 않습니다. 상단 저장 버튼으로 저장하세요.';
+   status.hidden = false;
+   dialog.close();
+  });
+  dialog.addEventListener('close', () => {
+   dialog.remove();
+   if (opener?.isConnected) opener.focus({ preventScroll: true });
+   window.scrollTo(scroll.x, scroll.y);
+  }, { once: true });
+  dialog.append(form);
+  document.body.append(dialog);
+  dialog.showModal();
+  inputs.get(row.category ? 'site' : 'category').focus({ preventScroll: true });
  }
 
  function updateCategoryFilter(name, select) {
@@ -419,7 +465,6 @@
     categorySelect = el('select', { className: 'category-filter', ariaLabel: def.title + ' 분류 필터' });
     categorySelect.addEventListener('change', () => {
      categoryFilters[name] = categorySelect.value;
-     for (const row of rowsOf(def)) newPasswordEntries.delete(row);
      renderTable(name);
      categorySelect.focus();
     });
@@ -437,9 +482,7 @@
   if (name === 'diary') visible = visible.filter(row => matchesFields(row, diarySearch, ['title', 'name', 'content']));
   if (name === 'history') visible = visible.filter(row => matchesFields(row, historySearch, def.columns.map(col => col.field)));
   if (def.searchable) {
-   const rowSet = new Set(rows);
-   const added = [...newPasswordEntries].filter(row => rowSet.has(row)).reverse();
-   visible = [...added, ...visible.filter(row => !newPasswordEntries.has(row) && matchesSearch(row, search) && (!categoryFilters[name] || categoryOf(row) === JSON.parse(categoryFilters[name])))];
+   visible = visible.filter(row => matchesSearch(row, search) && (!categoryFilters[name] || categoryOf(row) === JSON.parse(categoryFilters[name])));
   }
   if (!visible.length) {
    const empty = el('div', { className: 'empty' });
@@ -494,7 +537,6 @@
  function updateCount(view, n) { document.querySelector(`[data-view="${view}"] .count`).textContent = n; }
  function renderPasswords() { for (const [name, def] of Object.entries(TABLES)) if (def.searchable) renderTable(name); }
  function setSearch(value) {
-  if (search !== value) newPasswordEntries.clear();
   search = value;
   searchInput.value = value;
   renderPasswords();
@@ -597,7 +639,7 @@
  }
 
  window.vaultApi = {
-  load(input) { openEntries.clear(); newPasswordEntries.clear(); state = normalize(input); renderAll(); },
+  load(input) { openEntries.clear(); state = normalize(input); renderAll(); },
   serialize() {
    const snapshot = structuredClone(state);
    sortPasswordCategories(snapshot.passwords);
