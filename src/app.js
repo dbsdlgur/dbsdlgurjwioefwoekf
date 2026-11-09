@@ -194,6 +194,7 @@
    default: {
     const input = textInput(col, row[col.field], { type: col.type === 'password' ? 'password' : 'text' });
     input.addEventListener('input', () => edited(input.value));
+    if (col.field === 'category') input.addEventListener('change', () => ctx.categoryChanged?.());
     td.append(input);
    }
   }
@@ -242,11 +243,35 @@
   select.value = selected;
  }
 
+ // Each editor updates only its own summary, including during Korean IME input.
+ function entryContext(parent) {
+  const ctx = {
+   updaters: [],
+   refresh() { for (const update of ctx.updaters) update(); },
+   resort: parent.resort,
+   categoryChanged: parent.categoryChanged,
+  };
+  return ctx;
+ }
+
+ // Closed entries keep only their summary in the DOM; build fields on first expansion.
+ function lazyEditor(item, build) {
+  let built = false;
+  const ensure = () => {
+   if (!item.open || built) return;
+   built = true;
+   build();
+  };
+  item.addEventListener('toggle', ensure);
+  ensure();
+ }
+
  // A compact date/content overview; all existing fields remain editable on expansion.
- function renderEntries(name, visible, rows, ctx) {
+ function renderEntries(name, visible, rows, parentCtx) {
   const def = TABLES[name], summaryField = def.summaryField || 'content';
   const list = el('div', { className: 'history-list' });
   for (const row of visible) {
+   const ctx = entryContext(parentCtx);
    const item = el('details', { className: 'history-item', open: openEntries.has(row) });
    item.entryRow = row;
    item.addEventListener('toggle', () => {
@@ -273,20 +298,23 @@
    };
    ctx.updaters.push(update);
    const fields = el('div', { className: 'history-fields' });
-   for (const col of def.columns) {
-    const field = el('label', { className: 'history-field' });
-    field.dataset.field = col.field;
-    field.append(el('span', { className: 'history-label', textContent: col.label }));
-    if (col.field === 'date' || col.field === 'name' || (name === 'diary' && col.field !== 'content')) fillCell(field, col, row, ctx);
-    else {
-     const input = el('textarea', { value: row[col.field] ?? '', rows: col.field === 'content' ? 3 : 2 });
-     input.setAttribute('aria-label', col.label);
-     input.addEventListener('input', () => { row[col.field] = input.value; changed(); ctx.refresh(); });
-     field.append(input);
+   lazyEditor(item, () => {
+    for (const col of def.columns) {
+     const field = el('label', { className: 'history-field' });
+     field.dataset.field = col.field;
+     field.append(el('span', { className: 'history-label', textContent: col.label }));
+     if (col.field === 'date' || col.field === 'name' || (name === 'diary' && col.field !== 'content')) fillCell(field, col, row, ctx);
+     else {
+      const input = el('textarea', { value: row[col.field] ?? '', rows: col.field === 'content' ? 3 : 2 });
+      input.setAttribute('aria-label', col.label);
+      input.addEventListener('input', () => { row[col.field] = input.value; changed(); ctx.refresh(); });
+      field.append(input);
+     }
+     fields.append(field);
     }
-    fields.append(field);
-   }
-   fields.append(rowActions(name, rows, row, 'div'));
+    fields.append(rowActions(name, rows, row, 'div'));
+   });
+   update();
    item.append(summary, fields);
    list.append(item);
   }
@@ -294,7 +322,7 @@
  }
 
  // The list is read-only; expand any summary field to edit the complete entry.
- function renderPasswordEntries(name, visible, rows, ctx) {
+ function renderPasswordEntries(name, visible, rows, parentCtx) {
   const def = TABLES[name];
   const overviewFields = ['category', 'site', 'loginId', 'password'];
   const list = el('div', { className: 'password-list' });
@@ -303,6 +331,7 @@
   for (const field of overviewFields) headings.append(el('span', { textContent: def.columns.find(col => col.field === field).label }));
   list.append(headings);
   for (const row of visible) {
+   const ctx = entryContext(parentCtx);
    const item = el('details', { className: 'password-item', open: openEntries.has(row) });
    item.entryRow = row;
    item.addEventListener('toggle', () => {
@@ -359,8 +388,10 @@
    const marker = el('span', { className: 'password-toggle' });
    marker.setAttribute('aria-hidden', 'true');
    overview.append(marker);
-   for (const col of def.columns) details.append(fieldFor(col));
-   details.append(rowActions(name, rows, row, 'div'));
+   lazyEditor(item, () => {
+    for (const col of def.columns) details.append(fieldFor(col));
+    details.append(rowActions(name, rows, row, 'div'));
+   });
    item.append(overview, details);
    list.append(item);
   }
@@ -408,9 +439,9 @@
   const totals = def.footer && el('div', { className: 'totals' });
   const ctx = {
    updaters: [],
+   categoryChanged() { if (categorySelect) updateCategoryFilter(name, categorySelect); },
    refresh() {
     for (const update of ctx.updaters) update();
-    if (categorySelect) updateCategoryFilter(name, categorySelect);
     totals?.replaceChildren(...def.footer(rows).map(([label, value]) => {
      const item = el('span', { textContent: label + ' ' });
      item.append(el('b', { textContent: formatMoney(value) + '원' }));
