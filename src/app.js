@@ -29,13 +29,13 @@
  let search = '', diarySearch = '', historySearch = '', pwView = 'self';
  const categoryFilters = { passwordsSelf: '', passwordsFamily: '', passwordsOther: '' };
  const categoryOf = row => String(row.category ?? '').trim();
- // Category colors depend only on the trimmed name, never on row order or the active filter.
- function categoryColors(category) {
-  if (!category) return { background: '#f0f0f2', ink: '#333333' };
+ // The category dot color depends only on the trimmed name, never on row order or the active filter.
+ // Muted tones so the dots tell categories apart without competing with the one accent.
+ function categoryDot(category) {
+  if (!category) return '';
   let hash = 2166136261;
   for (const char of category) hash = Math.imul(hash ^ char.codePointAt(0), 16777619) >>> 0;
-  const hue = hash % 360, saturation = 45 + (hash >>> 9) % 15, lightness = 91 + (hash >>> 17) % 4;
-  return { background: `hsl(${hue} ${saturation}% ${lightness}%)`, ink: `hsl(${hue} 42% 28%)` };
+  return `hsl(${hash % 360} 38% 56%)`;
  }
  function matchesFields(row, query, fields) {
   const terms = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
@@ -359,15 +359,6 @@
      input.addEventListener('input', () => { row[col.field] = input.value; changed(); ctx.refresh(); });
      field.append(input);
     } else fillCell(field, col, row, ctx);
-    if (col.field === 'category') {
-     const update = () => {
-      const colors = categoryColors(categoryOf(row));
-      field.style.setProperty('--category-bg', colors.background);
-      field.style.setProperty('--category-ink', colors.ink);
-     };
-     ctx.updaters.push(update);
-     update();
-    }
     return field;
    };
    for (const key of overviewFields) {
@@ -386,11 +377,7 @@
     const update = () => {
      value.textContent = String(row[key] ?? '') || '—';
      value.title = String(row[key] ?? '');
-     if (key === 'category') {
-      const colors = categoryColors(categoryOf(row));
-      field.style.setProperty('--category-bg', colors.background);
-      field.style.setProperty('--category-ink', colors.ink);
-     }
+     if (key === 'category') field.style.setProperty('--category-dot', categoryDot(categoryOf(row)) || 'var(--line-2)');
     };
     ctx.updaters.push(update);
     update();
@@ -595,8 +582,11 @@
  function sortPasswordCategories(passwords) {
   for (const key of ['self', 'family', 'other']) passwords[key].sort((a, b) => {
    const first = categoryOf(a), second = categoryOf(b);
-   if (!first || !second) return Number(!first) - Number(!second);
-   return first.localeCompare(second, 'ko');
+   const emptyCategory = Number(!first) - Number(!second);
+   if (emptyCategory) return emptyCategory;
+   return first.localeCompare(second, 'ko')
+    || String(a.site ?? '').trim().localeCompare(String(b.site ?? '').trim(), 'ko')
+    || String(a.loginId ?? '').trim().localeCompare(String(b.loginId ?? '').trim(), 'ko');
   });
  }
 
