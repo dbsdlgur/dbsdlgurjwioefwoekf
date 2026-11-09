@@ -24,6 +24,9 @@
  };
  const sortDir = { history: 'asc', diary: 'desc' };
  const openEntries = new Set();
+ // New entries stay above the filtered results until the user changes the filter.
+ // This is view state only: blank fields need not match the current search yet.
+ const newPasswordEntries = new Set();
  let personalTab = 'passwords';
  let familyTab = 'passwords';
  let search = '', diarySearch = '', historySearch = '', pwView = 'self';
@@ -204,7 +207,7 @@
   const td = el(tag, { className: 'row-actions' });
   const ask = () => {
    const no = button('취소', idle);
-   td.replaceChildren(button('삭제 확인', () => { rows.splice(rows.indexOf(row), 1); openEntries.delete(row); changed(); renderTable(name); }, { className: 'danger' }), no);
+   td.replaceChildren(button('삭제 확인', () => { rows.splice(rows.indexOf(row), 1); openEntries.delete(row); newPasswordEntries.delete(row); changed(); renderTable(name); }, { className: 'danger' }), no);
    no.focus();
   };
   function idle() { td.replaceChildren(button('삭제', ask)); }
@@ -214,7 +217,6 @@
 
  function addRow(name) {
   const def = TABLES[name];
-  if (def.searchable && search) setSearch('');
   if (name === 'diary' || name === 'history') {
    if (name === 'diary') diarySearch = '';
    else historySearch = '';
@@ -223,6 +225,7 @@
   const row = emptyRow(def);
   if (def.searchable && categoryFilters[name]) row.category = JSON.parse(categoryFilters[name]);
   rowsOf(def).push(row);
+  if (def.searchable) newPasswordEntries.add(row);
   openEntries.add(row);
   changed();
   renderTable(name);
@@ -414,7 +417,12 @@
    categorySelect = head.querySelector('.category-filter');
    if (!categorySelect) {
     categorySelect = el('select', { className: 'category-filter', ariaLabel: def.title + ' 분류 필터' });
-    categorySelect.addEventListener('change', () => { categoryFilters[name] = categorySelect.value; renderTable(name); categorySelect.focus(); });
+    categorySelect.addEventListener('change', () => {
+     categoryFilters[name] = categorySelect.value;
+     for (const row of rowsOf(def)) newPasswordEntries.delete(row);
+     renderTable(name);
+     categorySelect.focus();
+    });
     head.append(categorySelect);
    }
    updateCategoryFilter(name, categorySelect);
@@ -428,7 +436,11 @@
   let visible = def.sortable ? sortByDate(rows, sortDir[name]) : rows;
   if (name === 'diary') visible = visible.filter(row => matchesFields(row, diarySearch, ['title', 'name', 'content']));
   if (name === 'history') visible = visible.filter(row => matchesFields(row, historySearch, def.columns.map(col => col.field)));
-  if (def.searchable) visible = visible.filter(row => matchesSearch(row, search) && (!categoryFilters[name] || categoryOf(row) === JSON.parse(categoryFilters[name])));
+  if (def.searchable) {
+   const rowSet = new Set(rows);
+   const added = [...newPasswordEntries].filter(row => rowSet.has(row)).reverse();
+   visible = [...added, ...visible.filter(row => !newPasswordEntries.has(row) && matchesSearch(row, search) && (!categoryFilters[name] || categoryOf(row) === JSON.parse(categoryFilters[name])))];
+  }
   if (!visible.length) {
    const empty = el('div', { className: 'empty' });
    if (rows.length) empty.append('검색 결과가 없습니다');
@@ -481,7 +493,12 @@
  const viewButtons = [...document.querySelectorAll('[data-view]')];
  function updateCount(view, n) { document.querySelector(`[data-view="${view}"] .count`).textContent = n; }
  function renderPasswords() { for (const [name, def] of Object.entries(TABLES)) if (def.searchable) renderTable(name); }
- function setSearch(value) { search = value; searchInput.value = value; renderPasswords(); }
+ function setSearch(value) {
+  if (search !== value) newPasswordEntries.clear();
+  search = value;
+  searchInput.value = value;
+  renderPasswords();
+ }
  function selectView(view) {
   pwView = view;
   for (const b of viewButtons) b.setAttribute('aria-pressed', String(b.dataset.view === view));
@@ -501,7 +518,7 @@
    next.focus();
   });
  }
- searchInput.addEventListener('input', () => { search = searchInput.value; renderPasswords(); });
+ searchInput.addEventListener('input', () => setSearch(searchInput.value));
  $('#diarySearch').addEventListener('input', event => { diarySearch = event.target.value; renderTable('diary'); });
  $('#historySearch').addEventListener('input', event => { historySearch = event.target.value; renderTable('history'); });
 
@@ -580,7 +597,7 @@
  }
 
  window.vaultApi = {
-  load(input) { openEntries.clear(); state = normalize(input); renderAll(); },
+  load(input) { openEntries.clear(); newPasswordEntries.clear(); state = normalize(input); renderAll(); },
   serialize() {
    const snapshot = structuredClone(state);
    sortPasswordCategories(snapshot.passwords);
