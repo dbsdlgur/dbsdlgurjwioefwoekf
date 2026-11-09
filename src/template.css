@@ -3,43 +3,47 @@
 [hidden]{display:none!important}
 
 /* ── 디자인 토큰 ─────────────────────────────────────────
-   DESIGN.md(Apple 계열)를 데이터 화면에 맞게 옮겼다.
-   - 강조색은 Action Blue 하나(--brand). 누를 수 있는 것·선택된 것만 파랗다.
-     바탕을 파랗게 칠하지 않는다(펼친 행·행 머리도 중립 단계).
-   - 카드·버튼·글자에 그림자 없음. 구분은 바탕색(parchment ↔ white)과 1px hairline으로.
-   - 모서리 문법: 칸/작은 버튼 8px · 카드 18px · 주 버튼/검색/필터/세그먼트 pill. 그 사이 값은 쓰지 않는다.
-   - 굵기는 400/600만. 17px 이상 제목은 자간을 좁힌다. 작은 글자에는 음수 자간을 쓰지 않는다.
-   - 간격은 4px 단위.
-   - 시그니처: 복사할 값(ID·PW)은 고정폭 글꼴(시스템 글꼴, 외부 요청 없음).
+   기준 문서: notion/DESIGN.md(Notion 분석)와 그 끝의 "개인정보 금고 적용" 절.
+   - 바탕은 따뜻한 종이색(--bg #f6f5f4), 카드·입력칸은 흰색. 구분은 hairline으로.
+   - 구조 강조색은 Notion Blue 하나(--brand). 주 동작·선택·포커스에만 쓰고 바탕에 깔지 않는다.
+   - 스티커 색(--sticker-*)은 장식 전용: 분류 점과 사이즈 그림에만. 버튼·바탕·테두리에는 쓰지 않는다.
+   - 모서리: 입력칸·목록 행·값 칸 4 · 버튼 8 · 카드 12 · 대화상자 16 · 주 버튼(저장·열기) pill.
+   - 그림자: 카드에는 없음. 떠 있는 대화상자만 --shadow-2.
+   - 굵기 400/500/600: 본문 400 · 버튼·행 머리 500 · 제목·선택 600.
+   - 간격은 4px 단위. 작은 글자에는 음수 자간을 쓰지 않는다.
+   - 시그니처: 복사할 값(ID·PW)은 고정폭 글꼴 + 값 칸.
    PC(기본)와 모바일(≤640px)은 같은 토큰 이름에 다른 값을 넣어 이원화한다.
    작은 휴대폰(≤400px)은 파일 끝에서 모바일 규칙 위에 폭을 되찾는 조정만 더한다. */
 :root{
- /* 색: 중립 단계 하나 + 강조 하나 + 의미색 */
- --bg:#f5f5f7;--surface:#fff;--surface-2:#fafafc;--sunken:#ededf0;
- --ink:#1d1d1f;--ink-2:#333;--muted:#636366;
- --line:#e0e0e0;--line-2:#d2d2d7;--line-soft:#f0f0f0;
- --brand:#0066cc;--brand-hover:#0058b0;--brand-ink:#fff;--brand-soft:#e8f1fb;
- --focus-ring:#0071e3;
- --danger:#c4291c;--danger-soft:#fdeeec;--success:#247a3b;
- --frost:rgba(245,245,247,.8);
- --font:'SF Pro Text',system-ui,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard','Noto Sans KR','Segoe UI',sans-serif;
- --font-display:'SF Pro Display',system-ui,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard','Noto Sans KR',sans-serif;
+ /* 색: 따뜻한 중립 단계 + 강조 하나 + 의미색 */
+ --bg:#f6f5f4;--surface:#fff;--surface-2:#fbfaf9;--sunken:#efeeec;
+ --ink:rgba(0,0,0,.95);--ink-2:#31302e;--muted:#615d59;
+ --line:#e6e6e6;--line-2:#dddddd;--line-soft:#efefef;
+ --brand:#0075de;--brand-hover:#005bab;--brand-ink:#fff;--brand-soft:#e6f1fc;
+ --focus-ring:#0075de;
+ --danger:#c4321f;--danger-soft:#fdeeec;--success:#1a7f37;
+ /* 스티커(장식 전용) */
+ --sticker-sky:#62aef0;--sticker-purple:#d6b6f6;--sticker-pink:#ff64c8;--sticker-orange:#dd5b00;--sticker-teal:#2a9d99;--sticker-green:#1aae39;--sticker-brown:#523410;
+ --frost:rgba(255,255,255,.9);
+ --shadow-2:0 0 0 1px rgba(0,0,0,.04),0 3px 6px rgba(0,0,0,.02),0 9px 24px rgba(0,0,0,.04),0 23px 52px rgba(0,0,0,.05);
+ --font:'Inter','NotionInter',-apple-system,BlinkMacSystemFont,system-ui,'Apple SD Gothic Neo','Pretendard','Noto Sans KR','Segoe UI',Helvetica,Arial,sans-serif;
+ --font-display:var(--font);
  --font-mono:ui-monospace,'SF Mono',SFMono-Regular,Menlo,Consolas,monospace;
- --track-tight:-.022em;
- --chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+ --track-tight:-.011em;
+ --chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23615d59' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 
- /* 글자 크기: xs 라벨/보조 · sm 버튼/머리글(caption) · md 본문/입력 · lg 카드 제목(tagline) · xl 브랜드 */
- --fs-xs:12px;--fs-sm:14px;--fs-md:15px;--fs-lg:21px;--fs-xl:24px;
- --lh:1.47;
+ /* 글자 크기: xs 라벨/보조(eyebrow) · sm 버튼/캡션 · md 본문(body-sm) · lg 카드 제목(heading-3) */
+ --fs-xs:12px;--fs-sm:14px;--fs-md:15px;--fs-lg:22px;
+ --lh:1.5;
 
  /* 간격(4px 단위) */
  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;
 
- /* 컨트롤 높이: 주 컨트롤(탭·검색·저장) · 보조 버튼 · 입력칸 · 칸 안 작은 버튼 */
+ /* 컨트롤 높이: 주 컨트롤(탭·검색) · 버튼 · 입력칸 · 칸 안 작은 버튼 */
  --h-control:44px;--h-button:36px;--h-input:40px;--h-mini:28px;
 
  /* 모서리 */
- --r-card:18px;--r-ctl:8px;--r-input:8px;--r-pill:999px;
+ --r-card:12px;--r-dialog:16px;--r-ctl:8px;--r-input:4px;--r-row:4px;--r-pill:999px;
 
  /* 레이아웃 */
  --page-w:1440px;--page-pad:var(--sp-6);--card-pad:var(--sp-5);--card-gap:var(--sp-4);
@@ -49,7 +53,7 @@
 
 @media (max-width:640px){
  :root{
-  --fs-xs:12px;--fs-sm:13px;--fs-md:15px;--fs-lg:19px;--fs-xl:21px;
+  --fs-xs:12px;--fs-sm:13px;--fs-md:15px;--fs-lg:20px;
   --lh:1.4;
   --h-control:40px;--h-button:40px;--h-input:40px;--h-mini:28px;
   --page-pad:var(--sp-3);--card-pad:var(--sp-3);--card-gap:var(--sp-3);
@@ -59,7 +63,7 @@
 
 /* ── 기본 ── */
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:var(--fs-md)/var(--lh) var(--font);-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--bg);color:var(--ink);font:var(--fs-md)/var(--lh) var(--font);font-feature-settings:'lnum','locl';-webkit-font-smoothing:antialiased}
 h1,h2,h3{font-family:var(--font-display);font-weight:600;letter-spacing:var(--track-tight)}
 button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 ::selection{background:var(--brand-soft)}
@@ -72,12 +76,12 @@ main{max-width:var(--page-w);margin:0 auto;padding:0 var(--page-pad) 64px}
 @media (max-width:640px){input,select,textarea{font-size:16px!important}}
 
 /* ── 버튼 ──
-   보조: 흰 바탕 pill + 파란 글자 · 주: 파란 pill · 위험: 붉은 글자. 누르면 scale(.95). */
-button{min-height:var(--h-button);padding:0 var(--sp-4);border:1px solid var(--line-2);background:var(--surface);color:var(--brand);border-radius:var(--r-pill);cursor:pointer;white-space:nowrap;font-size:var(--fs-sm);font-weight:400;transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .1s ease}
-button:hover{border-color:var(--brand)}
+   보조(utility): 흰 바탕 · 잉크 글자 · 8px · hairline · 500. 주: 파란 pill 하나. 위험: 붉은 글자. 누르면 scale(.95). */
+button{min-height:var(--h-button);padding:0 var(--sp-4);border:1px solid var(--line-2);background:var(--surface);color:var(--ink);border-radius:var(--r-ctl);cursor:pointer;white-space:nowrap;font-size:var(--fs-sm);font-weight:500;transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .1s ease}
+button:hover{background:var(--surface-2);border-color:#cfcfcf}
 button:active:not(:disabled){transform:scale(.95)}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
-button.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+button.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);border-radius:var(--r-pill)}
 button.primary:hover{background:var(--brand-hover);border-color:var(--brand-hover)}
 button.danger{border-color:transparent;background:var(--danger-soft);color:var(--danger)}
 button.danger:hover{border-color:var(--danger)}
@@ -85,8 +89,8 @@ button:disabled{opacity:.45;cursor:wait}
 
 /* ── 추가 대화상자: 목록의 필터와 위치를 유지한다 ── */
 body:has(.password-add-dialog[open]){overflow:hidden}
-.password-add-dialog{width:min(680px,calc(100% - 32px));max-height:calc(100dvh - 32px);margin:auto;padding:var(--sp-6);border:1px solid var(--line);border-radius:var(--r-card);background:var(--surface);color:var(--ink);overflow:auto;overscroll-behavior:contain}
-.password-add-dialog::backdrop{background:rgba(29,29,31,.32)}
+.password-add-dialog{width:min(680px,calc(100% - 32px));max-height:calc(100dvh - 32px);margin:auto;padding:var(--sp-6);border:0;border-radius:var(--r-dialog);background:var(--surface);color:var(--ink);box-shadow:var(--shadow-2);overflow:auto;overscroll-behavior:contain}
+.password-add-dialog::backdrop{background:rgba(15,15,15,.3)}
 .password-add-dialog h2{margin:0 0 var(--sp-1);font-size:var(--fs-lg);line-height:1.19}
 .password-add-dialog p,.password-add-status{margin:0 0 var(--sp-3);font-size:var(--fs-sm);color:var(--muted)}
 .password-add-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-4) var(--sp-3);margin-top:var(--sp-5)}
@@ -100,7 +104,7 @@ body:has(.password-add-dialog[open]){overflow:hidden}
  .password-add-actions{bottom:calc(-1 * var(--sp-4));padding-bottom:var(--sp-4)}
 }
 
-/* ── 머리: 상단 바(본인/가족/기타 · 저장) + 메뉴 탭. 반투명 parchment로 고정 ── */
+/* ── 머리: 상단 바(본인/가족/기타 · 저장) + 메뉴 탭. 흰 nav-bar(살짝 비침)로 고정 ── */
 html{scroll-padding-top:var(--sticky-stack-height,0px)}
 .app-header{position:sticky;top:0;z-index:30;display:flow-root;margin:0 calc(-1 * var(--page-pad)) var(--sp-4);padding:0 var(--page-pad);background:var(--frost);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
 .top{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--sp-4);padding:var(--sp-3) 0 var(--sp-2)}
@@ -116,21 +120,21 @@ html{scroll-padding-top:var(--sticky-stack-height,0px)}
 #saveStatus[data-result=error]{color:var(--danger)}
 
 /* 본인/가족/기타: 세그먼트(상위 범위) */
-.segmented{display:inline-flex;gap:2px;padding:2px;background:var(--sunken);border-radius:var(--r-pill)}
-.segmented button{min-height:32px;min-width:5.5em;padding:0 var(--sp-4);border:1px solid transparent;border-radius:var(--r-pill);background:none;color:var(--ink-2);font-size:var(--fs-sm)}
-.segmented button:hover{border-color:transparent;color:var(--ink)}
+.segmented{display:inline-flex;gap:2px;padding:2px;background:var(--sunken);border-radius:var(--r-ctl)}
+.segmented button{min-height:32px;min-width:5.5em;padding:0 var(--sp-4);border:1px solid transparent;border-radius:6px;background:none;color:var(--ink-2);font-size:var(--fs-sm);font-weight:400}
+.segmented button:hover{border-color:transparent;background:none;color:var(--ink)}
 .segmented button[aria-pressed=true]{background:var(--surface);border-color:var(--line);color:var(--ink);font-weight:600}
 .segmented .count{margin-left:var(--sp-1);color:var(--muted);font-size:var(--fs-xs);font-weight:400;font-variant-numeric:tabular-nums}
 
-/* 비밀번호/일기/이력/사이즈: 글자 탭(하위 메뉴). 선택은 잉크색 600 + 2px 밑줄 */
+/* 비밀번호/일기/이력/사이즈: 글자 탭(하위 메뉴). 선택은 잉크색 600 + 2px 파란 밑줄 */
 .tab-bar{display:flex;align-items:flex-end;gap:var(--sp-2)}
 [role=tablist]{display:flex;gap:var(--sp-6);margin:0}
 [role=tab]{position:relative;min-height:var(--h-control);padding:0;border:0;border-radius:0;background:none;color:var(--muted);font-size:var(--fs-md);font-weight:400}
 [role=tab]::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:2px;background:transparent;transition:background-color .15s ease}
-[role=tab]:hover{color:var(--ink)}
+[role=tab]:hover{background:none;color:var(--ink)}
 [role=tab]:active:not(:disabled){transform:none}
 [role=tab][aria-selected=true]{color:var(--ink);font-weight:600}
-[role=tab][aria-selected=true]::after{background:var(--ink)}
+[role=tab][aria-selected=true]::after{background:var(--brand)}
 [role=tab]:focus-visible{outline-offset:-2px;border-radius:var(--r-ctl)}
 
 /* ── 카드 ── */
@@ -138,11 +142,11 @@ html{scroll-padding-top:var(--sticky-stack-height,0px)}
 .section-head{display:flex;align-items:center;justify-content:flex-end;gap:var(--sp-2);margin-bottom:var(--sp-3)}
 .section-head h2{font-size:var(--fs-lg);line-height:1.19;margin:0;margin-right:auto;flex-shrink:0}
 .section-head .category-filter{margin-right:auto}
-.category-filter{min-width:0;max-width:14em;flex:0 1 14em;min-height:var(--h-button);padding:0 32px 0 var(--sp-4);border:1px solid var(--line-2);border-radius:var(--r-pill);background:var(--surface) var(--chevron) right 12px center/16px no-repeat;-webkit-appearance:none;appearance:none;color:var(--ink);font-size:var(--fs-sm);cursor:pointer}
+.category-filter{min-width:0;max-width:14em;flex:0 1 14em;min-height:var(--h-button);padding:0 32px 0 var(--sp-4);border:1px solid var(--line-2);border-radius:var(--r-ctl);background:var(--surface) var(--chevron) right 12px center/16px no-repeat;-webkit-appearance:none;appearance:none;color:var(--ink);font-size:var(--fs-sm);cursor:pointer}
 .category-filter:hover{border-color:var(--muted)}
 
-/* ── 검색: pill, 44px ── */
-.list-search{display:block;width:100%;min-height:var(--h-control);margin-bottom:var(--sp-3);padding:0 var(--sp-5) 0 44px;border:1px solid var(--line-2);border-radius:var(--r-pill);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='1.5' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") 16px center/18px no-repeat;font-size:var(--fs-md)}
+/* ── 검색: 입력칸 문법(4px), 44px ── */
+.list-search{display:block;width:100%;min-height:var(--h-control);margin-bottom:var(--sp-3);padding:0 var(--sp-4) 0 40px;border:1px solid var(--line-2);border-radius:var(--r-input);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23615d59' stroke-width='1.5' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") 12px center/18px no-repeat;font-size:var(--fs-md)}
 .list-search:hover{border-color:var(--muted)}
 .list-search:focus{outline:2px solid var(--focus-ring);outline-offset:0;border-color:transparent}
 
@@ -170,10 +174,10 @@ td.row-actions button,.secret button,.copyable button,button.toggle{min-height:v
 td.row-actions button{border-color:transparent;background:transparent;color:var(--muted)}
 td.row-actions button:hover{background:var(--sunken);border-color:transparent;color:var(--ink)}
 td.row-actions button.danger{background:var(--danger-soft);color:var(--danger)}
-.empty{color:var(--muted);padding:var(--sp-8) var(--sp-4);display:flex;align-items:center;justify-content:center;gap:var(--sp-2);flex-wrap:wrap;border-radius:var(--r-ctl);background:var(--surface-2);font-size:var(--fs-sm)}
+.empty{color:var(--muted);padding:var(--sp-8) var(--sp-4);display:flex;align-items:center;justify-content:center;gap:var(--sp-2);flex-wrap:wrap;border-radius:var(--r-card);background:var(--bg);font-size:var(--fs-sm)}
 
-/* 행 머리: 각 행의 첫 칸은 600 잉크로만 강조한다(바탕색 없음) */
-.section:not([data-table^=passwords]) tbody td:first-child input,.section:not([data-table^=passwords]) tbody td:first-child select{font-weight:600;color:var(--ink)}
+/* 행 머리: 각 행의 첫 칸은 500 잉크로만 강조한다(바탕색 없음) */
+.section:not([data-table^=passwords]) tbody td:first-child input,.section:not([data-table^=passwords]) tbody td:first-child select{font-weight:500;color:var(--ink)}
 .section:not([data-table^=passwords]) tbody td:first-child input::placeholder{font-weight:400}
 
 /* ── 합계 · D-day ── */
@@ -243,14 +247,14 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 .history-list{border-top:1px solid var(--line)}
 .history-item{border-bottom:1px solid var(--line)}
 .history-item:last-child{border-bottom:0}
-.history-summary{display:grid;grid-template-columns:clamp(112px,16%,208px) minmax(0,1fr) clamp(64px,12%,160px) 40px;align-items:center;gap:var(--sp-3);min-height:var(--h-control);padding:0 0 0 var(--sp-3);border-radius:var(--r-ctl);cursor:pointer;list-style:none;transition:background-color .15s ease}
+.history-summary{display:grid;grid-template-columns:clamp(112px,16%,208px) minmax(0,1fr) clamp(64px,12%,160px) 40px;align-items:center;gap:var(--sp-3);min-height:var(--h-control);padding:0 0 0 var(--sp-3);border-radius:var(--r-row);cursor:pointer;list-style:none;transition:background-color .15s ease}
 .history-summary::-webkit-details-marker{display:none}
 .history-summary:hover{background:var(--surface-2)}
-.history-date{font-variant-numeric:tabular-nums;font-weight:600;overflow-wrap:anywhere}
+.history-date{font-variant-numeric:tabular-nums;font-weight:500;overflow-wrap:anywhere}
 .history-content{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .history-name{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.history-item[open] .history-summary{background:var(--surface-2);border-radius:var(--r-ctl) var(--r-ctl) 0 0}
-.history-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-4) var(--sp-3);padding:var(--sp-4) var(--sp-3) var(--sp-5);background:var(--surface-2);border-radius:0 0 var(--r-ctl) var(--r-ctl);margin-bottom:var(--sp-2)}
+.history-item[open] .history-summary{background:var(--surface-2);border-radius:var(--r-row) var(--r-row) 0 0}
+.history-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-4) var(--sp-3);padding:var(--sp-4) var(--sp-3) var(--sp-5);background:var(--surface-2);border-radius:0 0 var(--r-row) var(--r-row);margin-bottom:var(--sp-2)}
 .history-field{display:grid;align-content:start;gap:var(--sp-1);min-width:0}
 .history-field[data-field=content]{grid-column:1/-1}
 .history-label{font-size:var(--fs-xs);color:var(--muted)}
@@ -274,23 +278,23 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 .password-headings>span{padding:0 var(--sp-2)}
 .password-item{border-bottom:1px solid var(--line)}
 .password-item:last-child{border-bottom:0}
-.password-overview{min-height:var(--h-control);padding:var(--sp-1) 0;border-radius:var(--r-ctl);cursor:pointer;list-style:none;transition:background-color .15s ease}
+.password-overview{min-height:var(--h-control);padding:var(--sp-1) 0;border-radius:var(--r-row);cursor:pointer;list-style:none;transition:background-color .15s ease}
 .password-overview::-webkit-details-marker{display:none}
 .password-overview:hover{background:var(--surface-2)}
-.password-item[open]>.password-overview{background:var(--surface-2);border-radius:var(--r-ctl) var(--r-ctl) 0 0}
+.password-item[open]>.password-overview{background:var(--surface-2);border-radius:var(--r-row) var(--r-row) 0 0}
 .password-field{min-width:0}
 .password-value{display:block;min-width:0;padding:var(--sp-1) var(--sp-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .password-overview .copyable>.password-value{flex:1}
 /* 목록 값은 생성 글자로 그린다(app.js): Android가 이메일 형식 ID를 메일 링크로 바꾸지 못하게 */
 .password-value[data-text]::before{content:attr(data-text)}
-/* 시그니처: 복사할 값(ID·PW)은 고정폭 글꼴 + 값 칸(parchment 바탕, 8px, 높이 32).
+/* 시그니처: 복사할 값(ID·PW)은 고정폭 글꼴 + 값 칸(종이색 바탕, 4px, 높이 32).
    라벨은 맨 글자, 값은 칸 안 — 모양만으로 라벨과 값이 갈린다. */
 .password-overview [data-field=loginId] .password-value,.password-overview [data-field=password] .password-value,.password-details [data-field=loginId] input,.password-details [data-field=password] input{font-family:var(--font-mono);font-size:.93em;font-variant-numeric:tabular-nums}
-.password-overview [data-field=loginId] .password-value,.password-overview [data-field=password] .password-value{height:32px;padding:0 var(--sp-2);line-height:32px;border-radius:var(--r-ctl);background:var(--bg);color:var(--ink)}
+.password-overview [data-field=loginId] .password-value,.password-overview [data-field=password] .password-value{height:32px;padding:0 var(--sp-2);line-height:32px;border-radius:var(--r-row);background:var(--bg);color:var(--ink)}
 .password-overview:hover [data-field=loginId] .password-value,.password-overview:hover [data-field=password] .password-value,.password-item[open]>.password-overview [data-field=loginId] .password-value,.password-item[open]>.password-overview [data-field=password] .password-value{background:var(--sunken)}
-/* 분류: 중립 칩 + 분류마다 정해진 작은 색 점 하나 */
-.password-overview [data-field=category] .password-value{display:flex;align-items:center;gap:var(--sp-2);font-weight:600}
-.password-overview [data-field=category] .password-value::before{content:'';flex:none;width:8px;height:8px;border-radius:50%;background:var(--category-dot,var(--line-2))}
+/* 분류: 잉크 500 글자 + 분류마다 정해진 스티커 색 점 하나(app.js categoryDot) */
+.password-overview [data-field=category] .password-value{display:flex;align-items:center;gap:var(--sp-2);font-weight:500}
+.password-overview [data-field=category] .password-value::before{content:'';flex:none;width:8px;height:8px;border-radius:50%;background:var(--category-dot,var(--line-2));box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
 .password-label{display:block;margin-bottom:var(--sp-1);font-size:var(--fs-xs);color:var(--muted)}
 .password-overview .password-label{display:none}
 .password-field input,.password-field textarea{display:block;width:100%;min-width:0;min-height:var(--h-input);padding:var(--sp-2) var(--sp-3);border:1px solid var(--line-2);border-radius:var(--r-input);background:var(--surface);text-overflow:ellipsis}
@@ -299,7 +303,7 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 .password-field .copyable{position:relative}
 .password-field .copied{position:absolute;right:0;top:100%;z-index:1;padding:0 var(--sp-1);background:var(--surface)}
 .password-overview .copied{background:var(--surface-2)}
-.password-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-4) var(--sp-3);padding:var(--sp-4) var(--sp-3) var(--sp-5);background:var(--surface-2);border-radius:0 0 var(--r-ctl) var(--r-ctl);margin-bottom:var(--sp-2)}
+.password-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-4) var(--sp-3);padding:var(--sp-4) var(--sp-3) var(--sp-5);background:var(--surface-2);border-radius:0 0 var(--r-row) var(--r-row);margin-bottom:var(--sp-2)}
 .password-details .password-field[data-field=link]{grid-column:1/-1}
 @media(max-width:640px){
  .password-headings{display:none}
@@ -320,7 +324,7 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
  .section-head{margin-bottom:var(--sp-2)}
 }
 
-/* ── 사이즈: 화면의 한 장면. 인체 그림은 중립 회색 단계, 선택한 부위만 Action Blue ── */
+/* ── 사이즈: 화면의 한 장면(스티커 일러스트). 상의 보라·하의 하늘·신발 주황, 선택하면 나머지가 옅어진다 ── */
 .size-profile-toolbar{display:flex;align-items:end;gap:var(--sp-3);flex-wrap:wrap;margin-bottom:var(--sp-4)}
 .size-profile-toolbar h2{font-size:var(--fs-lg);line-height:1.19;margin:0 auto 0 0;align-self:center}
 .size-field{display:grid;gap:var(--sp-1);min-width:0}
@@ -334,16 +338,17 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 .size-profile-name .size-field{flex:1;max-width:320px}
 .size-profile-confirm{display:flex;align-items:center;justify-content:flex-end;gap:var(--sp-2);flex-wrap:wrap;padding:var(--sp-3);margin-bottom:var(--sp-3);border:1px solid var(--line);border-radius:var(--r-ctl)}
 .size-layout{display:grid;grid-template-columns:minmax(280px,1fr) minmax(0,1.6fr);gap:var(--sp-8);align-items:start}
-.size-illustration{min-width:0;padding:var(--sp-6) var(--sp-4) var(--sp-4);border-radius:var(--r-ctl);background:var(--bg);text-align:center}
+.size-illustration{min-width:0;padding:var(--sp-6) var(--sp-4) var(--sp-4);border-radius:var(--r-card);background:var(--bg);text-align:center}
 /* 사람 그림: viewBox를 몸 경계에 맞춰 여백 없이 크게 */
 .size-body{display:block;width:100%;max-width:480px;max-height:460px;margin:auto;overflow:visible}
-.size-body-neutral{fill:#fafafc;stroke:var(--ink);stroke-width:5;stroke-linejoin:round;stroke-linecap:round;cursor:default}
-.size-body [data-size-zone]{fill:var(--size-zone-fill);stroke:var(--ink);stroke-width:5;stroke-linejoin:round;stroke-linecap:round;cursor:pointer;transition:fill .2s ease,stroke .2s ease}
-.size-body [data-size-zone=top]{--size-zone-fill:#d2d2d7}
-.size-body [data-size-zone=bottom]{--size-zone-fill:#aeaeb2}
-.size-body [data-size-zone=shoes]{--size-zone-fill:#6e6e73}
-.size-body [data-size-zone]:hover{--size-zone-fill:#bfd6f0}
-.size-body [data-size-zone].is-selected{--size-zone-fill:var(--brand);stroke:var(--ink)}
+.size-body-neutral{fill:#fff;stroke:var(--ink);stroke-width:5;stroke-linejoin:round;stroke-linecap:round;cursor:default}
+.size-body [data-size-zone]{fill:var(--size-zone-fill);stroke:var(--ink);stroke-width:5;stroke-linejoin:round;stroke-linecap:round;cursor:pointer;transition:opacity .2s ease,stroke .2s ease}
+.size-body [data-size-zone=top]{--size-zone-fill:var(--sticker-purple)}
+.size-body [data-size-zone=bottom]{--size-zone-fill:var(--sticker-sky)}
+.size-body [data-size-zone=shoes]{--size-zone-fill:var(--sticker-orange)}
+.size-body [data-size-zone]:hover{stroke:var(--brand)}
+.size-body:has(.is-selected) [data-size-zone]:not(.is-selected){opacity:.35}
+.size-body [data-size-zone].is-selected{stroke:var(--brand);stroke-width:8}
 .size-body .size-face{pointer-events:none}
 .size-body .size-face-ring{fill:none;stroke:var(--ink);stroke-width:5;pointer-events:none}
 .size-body .size-body-detail{fill:none;stroke:var(--ink);stroke-width:4;stroke-linecap:round;pointer-events:none}
@@ -387,10 +392,10 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 .size-detail-body{display:block;width:100%;max-width:500px;margin:auto;overflow:visible;cursor:pointer}
 .size-detail-body:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
 .size-layout.is-detail{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}
-.size-detail-body .size-garment{fill:#d2d2d7;stroke:var(--ink);stroke-width:4;stroke-linejoin:round;stroke-linecap:round}
-.size-detail-body[data-category=bottom] .size-garment{fill:#aeaeb2}
-.size-detail-body[data-category=shoes] .size-garment{fill:#c7c7cc}
-.size-detail-body .size-insole{fill:#fafafc;stroke-width:3}
+.size-detail-body .size-garment{fill:var(--sticker-purple);stroke:var(--ink);stroke-width:4;stroke-linejoin:round;stroke-linecap:round}
+.size-detail-body[data-category=bottom] .size-garment{fill:var(--sticker-sky)}
+.size-detail-body[data-category=shoes] .size-garment{fill:var(--sticker-orange)}
+.size-detail-body .size-insole{fill:#fff;stroke-width:3}
 .size-detail-body .size-shoe-sole{fill:none;stroke-width:3}
 .size-dimension-line{stroke:var(--brand);stroke-width:2;marker-start:url(#size-dimension-arrow);marker-end:url(#size-dimension-arrow)}
 #size-dimension-arrow path{fill:var(--brand)}
@@ -400,7 +405,7 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 @media(max-width:900px){.size-layout.is-detail{grid-template-columns:minmax(0,1fr)}}
 
 /* ── 작은 휴대폰(≤400px): 모바일 규칙에 더해 내용 폭을 되찾는다 ──
-   카드는 DESIGN.md의 타일처럼 화면 끝까지 붙이고(모서리·좌우 테두리 없음),
+   카드는 화면 끝까지 붙이고(모서리·좌우 테두리 없음),
    이력·일기 요약은 두 줄로, 비밀번호 목록은 PW 칸을 넓힌다. */
 @media (max-width:400px){
  .section{margin-left:calc(-1 * var(--page-pad));margin-right:calc(-1 * var(--page-pad));border-radius:0;border-left:0;border-right:0;padding-left:var(--page-pad);padding-right:var(--page-pad)}

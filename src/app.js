@@ -30,12 +30,13 @@
  const categoryFilters = { passwordsSelf: '', passwordsFamily: '', passwordsOther: '' };
  const categoryOf = row => String(row.category ?? '').trim();
  // The category dot color depends only on the trimmed name, never on row order or the active filter.
- // Muted tones so the dots tell categories apart without competing with the one accent.
+ // Dots come from the Notion sticker palette (decoration only; never on buttons or surfaces).
+ const STICKERS = ['sky', 'purple', 'pink', 'orange', 'teal', 'green', 'brown'];
  function categoryDot(category) {
   if (!category) return '';
   let hash = 2166136261;
   for (const char of category) hash = Math.imul(hash ^ char.codePointAt(0), 16777619) >>> 0;
-  return `hsl(${hash % 360} 38% 56%)`;
+  return `var(--sticker-${STICKERS[hash % STICKERS.length]})`;
  }
  function matchesFields(row, query, fields) {
   const terms = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);

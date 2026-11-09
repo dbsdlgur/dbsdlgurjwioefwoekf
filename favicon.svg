@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="16" fill="#1d1d1f"/>
+  <rect width="64" height="64" rx="16" fill="#191918"/>
   <!-- Shackle -->
   <path d="M22 28v-8a10 10 0 0 1 20 0v8" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
   <!-- Body -->
   <rect x="16" y="28" width="32" height="24" rx="6" fill="#ffffff"/>
   <!-- Keyhole dot -->
-  <circle cx="32" cy="40" r="3.5" fill="#1d1d1f"/>
+  <circle cx="32" cy="40" r="3.5" fill="#191918"/>
 </svg>
