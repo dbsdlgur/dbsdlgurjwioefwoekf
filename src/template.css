@@ -64,6 +64,9 @@ h1,h2,h3{font-family:var(--font-display);font-weight:600;letter-spacing:var(--tr
 button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 ::selection{background:var(--brand-soft)}
 ::placeholder{color:var(--muted);opacity:1}
+/* iOS가 이메일·전화번호를 자동으로 링크로 바꾸지 않게 한다(template.html의 format-detection).
+   그래도 생긴 링크는 글자처럼 보이고 누르면 행 펼침으로 넘어간다. */
+a[x-apple-data-detectors],a[href^="mailto:"],a[href^="tel:"]{color:inherit!important;text-decoration:none!important;font:inherit!important;pointer-events:none}
 main{max-width:var(--page-w);margin:0 auto;padding:0 var(--page-pad) 64px}
 /* iOS는 16px 미만 입력칸에 포커스하면 화면을 확대한다 */
 @media (max-width:640px){input,select,textarea{font-size:16px!important}}
