@@ -375,7 +375,11 @@
      field.append(box);
     } else field.append(value);
     const update = () => {
-     value.textContent = String(row[key] ?? '') || '—';
+     const text = String(row[key] ?? '') || '—';
+     // Android(Samsung Internet·Chrome)는 format-detection을 무시하고 글자 속 이메일을 메일 링크로 연다.
+     // 분류 외 값은 CSS 생성 글자(::before)로 그려 문서 텍스트에서 빼서 자동 인식을 막는다.
+     if (key === 'category') value.textContent = text;
+     else { value.textContent = ''; value.dataset.text = text; }
      value.title = String(row[key] ?? '');
      if (key === 'category') field.style.setProperty('--category-dot', categoryDot(categoryOf(row)) || 'var(--line-2)');
     };
