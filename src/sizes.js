@@ -282,6 +282,9 @@ window.VaultSizes = (() => {
    // Static vector only. All user-entered text is assigned through DOM text/value properties.
    illustration.innerHTML = `<svg viewBox="0 0 1024 1024" aria-hidden="true" class="size-body">
     <circle cx="512" cy="209" r="66" class="size-body-neutral"/>
+    ${/^data:image\/(?:webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(window.VaultSizeFace || '') ? `<clipPath id="size-face-clip"><circle cx="512" cy="209" r="66"/></clipPath>
+    <image href="${window.VaultSizeFace}" x="446" y="143" width="132" height="132" preserveAspectRatio="xMidYMid slice" clip-path="url(#size-face-clip)" class="size-face"/>
+    <circle cx="512" cy="209" r="66" class="size-face-ring"/>` : ''}
     <g class="size-body-neutral">
      <path d="M204 310 162 273Q152 267 153 280L169 303 116 297Q108 296 109 304Q110 309 117 310L151 318 113 315Q104 315 105 324Q106 330 115 330L152 331 115 335Q106 336 109 343Q111 348 120 346L152 341 130 354Q122 358 127 363Q130 367 137 364L173 355Q189 355 204 346Z"/>
      <path d="M176 328Q166 323 168 306" class="size-body-detail"/>
