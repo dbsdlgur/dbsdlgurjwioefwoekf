@@ -280,7 +280,7 @@ window.VaultSizes = (() => {
    const layout = el('div', { className: 'size-layout' });
    const illustration = el('div', { className: 'size-illustration' });
    // Static vector only. All user-entered text is assigned through DOM text/value properties.
-   illustration.innerHTML = `<svg viewBox="0 0 1024 1024" aria-hidden="true" class="size-body">
+   illustration.innerHTML = `<svg viewBox="96 132 832 784" aria-hidden="true" class="size-body">
     <circle cx="512" cy="209" r="66" class="size-body-neutral"/>
     ${/^data:image\/(?:webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(window.VaultSizeFace || '') ? `<clipPath id="size-face-clip"><circle cx="512" cy="209" r="66"/></clipPath>
     <image href="${window.VaultSizeFace}" x="446" y="143" width="132" height="132" preserveAspectRatio="xMidYMid slice" clip-path="url(#size-face-clip)" class="size-face"/>
