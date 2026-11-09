@@ -106,7 +106,9 @@ body:has(.password-add-dialog[open]){overflow:hidden}
 
 /* ── 머리: 상단 바(본인/가족/기타 · 저장) + 메뉴 탭. 흰 nav-bar(살짝 비침)로 고정 ── */
 html{scroll-padding-top:var(--sticky-stack-height,0px)}
-.app-header{position:sticky;top:0;z-index:30;display:flow-root;margin:0 calc(-1 * var(--page-pad)) var(--sp-4);padding:0 var(--page-pad);background:var(--frost);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
+/* 흰 바는 화면 양끝까지(border-image outset은 가로 스크롤을 만들지 않는다), 안의 내용은 카드 가장자리에 맞춘다.
+   아래 hairline도 같은 띠에 그려 화면 끝까지 이어진다. */
+.app-header{position:sticky;top:0;z-index:30;display:flow-root;margin:0 0 var(--sp-4);padding:0;border-image:linear-gradient(to bottom,var(--frost) calc(100% - 1px),var(--line) 0) fill 0 / 0 / 0 100vw;-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px)}
 .top{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--sp-4);padding:var(--sp-3) 0 var(--sp-2)}
 .top .segmented{grid-column:1;grid-row:1}
 .save-meta{grid-column:2;grid-row:1;display:flex;align-items:center;flex-wrap:wrap;gap:var(--sp-2);min-width:0}
