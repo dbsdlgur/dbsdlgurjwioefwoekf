@@ -293,7 +293,7 @@
   list.dataset.kind = name;
   const heads = el('div', { className: 'history-headings' });
   heads.setAttribute('aria-hidden', 'true');
-  for (const text of name === 'diary' ? ['날짜', '제목', '이름 · 비고'] : ['날짜', '제목', '']) heads.append(el('span', { textContent: text }));
+  for (const text of name === 'diary' ? ['날짜', '제목', '이름', '비고'] : ['날짜', '제목', '내용']) heads.append(el('span', { textContent: text }));
   heads.append(el('span'));
   list.append(heads);
   for (const row of visible) {
@@ -311,7 +311,9 @@
    const person = el('span', { className: 'history-name' });
    const marker = el('span', { className: 'history-marker' });
    marker.setAttribute('aria-hidden', 'true');
-   summary.append(date, content, person, marker);
+   const note = el('span', { className: 'history-note' });
+   if (name === 'diary') summary.append(date, content, person, note, marker);
+   else summary.append(date, content, person, marker);
    const update = () => {
     const dateText = String(row.date || '날짜 미입력');
     const split = dateText.search(/[~～〜]/);
@@ -319,11 +321,14 @@
     else dateValue.replaceChildren(dateText.slice(0, split + 1), el('wbr'), dateText.slice(split + 1));
     content.textContent = row[summaryField] || (summaryField === 'content' ? '내용 미입력' : '제목 미입력');
     content.title = row[summaryField] || '';
-    if (name === 'history') { person.textContent = ''; person.title = ''; }
+    if (name === 'history') { person.textContent = row.content || ''; person.title = row.content || ''; }
     else {
-     const who = [row.name, row.note1].filter(Boolean).join(' · ');
-     person.textContent = who || '—';
-     person.title = who || '이름 미입력';
+     person.textContent = row.name || '—';
+     person.title = row.name || '이름 미입력';
+     note.textContent = row.note1 || '';
+     note.title = row.note1 || '';
+     // 휴대폰에서는 note 칸을 숨기고 이름 뒤에 붙여 보여 준다.
+     if (row.note1) person.dataset.note = row.note1; else delete person.dataset.note;
     }
    };
    ctx.updaters.push(update);
