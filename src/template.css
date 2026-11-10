@@ -250,6 +250,9 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 .history-item{border-bottom:1px solid var(--line)}
 .history-item:last-child{border-bottom:0}
 .history-summary{display:grid;grid-template-columns:clamp(112px,16%,208px) minmax(0,1fr) clamp(64px,12%,160px) 40px;align-items:center;gap:var(--sp-3);min-height:var(--h-control);padding:0 0 0 var(--sp-3);border-radius:var(--r-row);cursor:pointer;list-style:none;transition:background-color .15s ease}
+.history-headings{display:grid;grid-template-columns:clamp(112px,16%,208px) minmax(0,1fr) clamp(64px,12%,160px) 40px;gap:var(--sp-3);padding:0 0 var(--sp-2) var(--sp-3);color:var(--muted);font-size:var(--fs-xs);border-bottom:1px solid var(--line)}
+@media(min-width:641px){.history-list[data-kind=diary] :is(.history-headings,.history-summary){grid-template-columns:clamp(112px,16%,208px) minmax(0,1fr) clamp(96px,22%,280px) 40px}}
+@media(min-width:401px) and (max-width:640px){.history-list[data-kind=diary] .history-summary{grid-template-columns:88px minmax(0,1fr) 96px 32px}}
 .history-summary::-webkit-details-marker{display:none}
 .history-summary:hover{background:var(--surface-2)}
 .history-date{font-variant-numeric:tabular-nums;font-weight:500;overflow-wrap:anywhere}
@@ -268,6 +271,7 @@ button.toggle[aria-pressed=true]{background:var(--ink);border-color:var(--ink);c
 .history-fields>.row-actions button,.password-details>.row-actions button{color:var(--muted)}
 .history-fields>.row-actions button.danger,.password-details>.row-actions button.danger{color:var(--danger)}
 @media(max-width:640px){
+ .history-headings{display:none}
  .history-summary{grid-template-columns:88px minmax(0,1fr) 56px 32px;gap:var(--sp-2);min-height:var(--h-control);padding-left:var(--sp-1)}
  .history-date{font-size:var(--fs-sm)}
  .history-fields{grid-template-columns:minmax(0,1fr);padding:var(--sp-3) var(--sp-2) var(--sp-4);gap:var(--sp-3)}

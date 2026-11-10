@@ -290,6 +290,12 @@
  function renderEntries(name, visible, rows, parentCtx) {
   const def = TABLES[name], summaryField = def.summaryField || 'content';
   const list = el('div', { className: 'history-list' });
+  list.dataset.kind = name;
+  const heads = el('div', { className: 'history-headings' });
+  heads.setAttribute('aria-hidden', 'true');
+  for (const text of name === 'diary' ? ['날짜', '제목', '이름 · 비고'] : ['날짜', '제목', '']) heads.append(el('span', { textContent: text }));
+  heads.append(el('span'));
+  list.append(heads);
   for (const row of visible) {
    const ctx = entryContext(parentCtx);
    const item = el('details', { className: 'history-item', open: openEntries.has(row) });
