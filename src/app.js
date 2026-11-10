@@ -13,11 +13,11 @@
  const TABLES = {
   diary: { title: '일기', path: ['diary'], sortable: true, summaryField: 'title', columns: [
    { field: 'date', label: '날짜', type: 'date' }, { field: 'title', label: '제목' },
-   { field: 'name', label: '이름' }, { field: 'content', label: '내용' },
+   { field: 'name', label: '이름' }, { field: 'note1', label: '비고' }, { field: 'content', label: '내용' },
   ] },
-  history: { title: '이력', path: ['history'], sortable: true, columns: [
-   { field: 'date', label: '날짜', type: 'date', allowRange: true }, { field: 'content', label: '내용' }, { field: 'name', label: '이름' }, { field: 'note1', label: '비고1' },
-   { field: 'note2', label: '비고2' }, { field: 'residence', label: '거주지' },
+  history: { title: '이력', path: ['history'], sortable: true, summaryField: 'name', columns: [
+   { field: 'date', label: '날짜', type: 'date', allowRange: true }, { field: 'name', label: '제목' }, { field: 'content', label: '내용' }, { field: 'note1', label: '비고1' },
+   { field: 'note2', label: '비고2' }, { field: 'note3', label: '비고3' }, { field: 'note4', label: '비고4' },
   ] },
   passwordsSelf: { title: '본인', path: ['passwords', 'self'], view: 'self', searchable: true, columns: PASSWORD_COLUMNS },
   passwordsOther: { title: '기타', path: ['passwords', 'other'], view: 'other', searchable: true, columns: PASSWORD_COLUMNS },
@@ -60,7 +60,14 @@
   const s = structuredClone(input);
   s.profile = { ...s.profile };
   for (const key of ['expenses', 'identity', 'family']) s.profile[key] = Array.isArray(s.profile[key]) ? s.profile[key] : [];
-  s.history = Array.isArray(s.history) ? s.history : [];
+  s.history = Array.isArray(s.history) ? s.history.map(row => {
+   // 거주지는 비고3으로 옮긴다(이미 비고3이 있으면 아래 줄에 붙인다).
+   if (!row || typeof row !== 'object' || !('residence' in row)) return row;
+   const { residence, ...rest } = row;
+   const moved = String(residence ?? '').trim();
+   if (moved) rest.note3 = rest.note3 ? `${rest.note3}\n${moved}` : moved;
+   return rest;
+  }) : [];
   s.diary = Array.isArray(s.diary) ? s.diary : [];
   s.passwords = { ...s.passwords };
   for (const key of ['self', 'family', 'other']) s.passwords[key] = Array.isArray(s.passwords[key]) ? s.passwords[key].map(migratePasswordLinks) : [];
@@ -222,7 +229,7 @@
    initialFocus: def.searchable ? (row.category ? 'site' : 'category') : 'date',
    fields: def.columns.map(col => ({
     key: col.field, label: col.label, value: row[col.field],
-    multiline: col.type === 'links' || col.field.startsWith('note') || col.field === 'content' || col.field === 'residence',
+    multiline: col.type === 'links' || col.field.startsWith('note') || col.field === 'content',
     wide: col.type === 'links' || col.field === 'content',
     rows: col.field === 'content' ? (name === 'diary' ? 6 : 3) : 2,
     placeholder: col.type === 'date' ? (col.allowRange ? '2006.03~2009.02' : 'YYYY-MM-DD') : '',
@@ -236,7 +243,7 @@
     renderTable(name);
     const matches = def.searchable
      ? matchesSearch(row, search) && (!categoryFilters[name] || categoryOf(row) === JSON.parse(categoryFilters[name]))
-     : name === 'diary' ? matchesFields(row, diarySearch, ['title', 'name', 'content'])
+     : name === 'diary' ? matchesFields(row, diarySearch, ['title', 'name', 'note1', 'content'])
       : matchesFields(row, historySearch, def.columns.map(col => col.field));
     const status = $('#' + (def.searchable ? 'password' : name) + 'AddStatus');
     status.textContent = matches ? '추가했습니다. 상단 저장 버튼으로 저장하세요.' : '추가했습니다. 현재 필터에 맞지 않아 목록에는 표시되지 않습니다. 상단 저장 버튼으로 저장하세요.';
@@ -304,10 +311,14 @@
     const split = dateText.search(/[~～〜]/);
     if (split < 0) dateValue.textContent = dateText;
     else dateValue.replaceChildren(dateText.slice(0, split + 1), el('wbr'), dateText.slice(split + 1));
-    content.textContent = row[summaryField] || (summaryField === 'title' ? '제목 미입력' : '내용 미입력');
+    content.textContent = row[summaryField] || (summaryField === 'content' ? '내용 미입력' : '제목 미입력');
     content.title = row[summaryField] || '';
-    person.textContent = row.name || '—';
-    person.title = row.name || '이름 미입력';
+    if (name === 'history') { person.textContent = ''; person.title = ''; }
+    else {
+     const who = [row.name, row.note1].filter(Boolean).join(' · ');
+     person.textContent = who || '—';
+     person.title = who || '이름 미입력';
+    }
    };
    ctx.updaters.push(update);
    const fields = el('div', { className: 'history-fields' });
@@ -434,7 +445,7 @@
   if (!def.searchable || !head.querySelector('button')) head.append(button('+ 추가', () => addRow(name)));
   if (def.view) updateCount(def.view, rows.length);
   let visible = def.sortable ? sortByDate(rows, sortDir[name]) : rows;
-  if (name === 'diary') visible = visible.filter(row => matchesFields(row, diarySearch, ['title', 'name', 'content']));
+  if (name === 'diary') visible = visible.filter(row => matchesFields(row, diarySearch, ['title', 'name', 'note1', 'content']));
   if (name === 'history') visible = visible.filter(row => matchesFields(row, historySearch, def.columns.map(col => col.field)));
   if (def.searchable) {
    visible = visible.filter(row => matchesSearch(row, search) && (!categoryFilters[name] || categoryOf(row) === JSON.parse(categoryFilters[name])));
