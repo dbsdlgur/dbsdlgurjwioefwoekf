@@ -7,6 +7,7 @@
   { field: 'link', label: '링크', type: 'links' }, { field: 'loginId', label: 'ID' },
   { field: 'password', label: 'PW', type: 'copy' },
   { field: 'note1', label: '비고1' }, { field: 'note2', label: '비고2' }, { field: 'note3', label: '비고3' },
+  { field: 'note4', label: '비고4' },
  ];
  // 표 정의(S-4~S-6). path는 상태 JSON(S-7) 안의 위치다. computed 열은 저장하지 않는다.
  const TABLES = {

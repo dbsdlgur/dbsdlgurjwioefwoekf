@@ -64,7 +64,7 @@ window.VaultPure = (() => {
   });
  }
  // 공백으로 나눈 단어를 분류·사이트·링크·비고에서 찾는다. ID/PW는 제외한다.
- const SEARCH_FIELDS = ['category', 'site', 'loginId', 'link', 'note1', 'note2', 'note3'];
+ const SEARCH_FIELDS = ['category', 'site', 'loginId', 'link', 'note1', 'note2', 'note3', 'note4'];
  function matchesSearch(row, query) {
   const terms = String(query ?? '').trim().toLowerCase().split(/\s+/).filter(Boolean);
   return terms.every(term => SEARCH_FIELDS.some(field => String(row[field] ?? '').toLowerCase().includes(term)));
@@ -74,7 +74,7 @@ window.VaultPure = (() => {
   const links = String(row.link ?? '').split('\n').map(value => value.trim()).filter(Boolean);
   // Explicit web URLs plus common bare domains. Do not extract email addresses.
   const urls = /https?:\/\/[^\s<>"']+|(?<![\w@./:-])(?:www\.[a-z0-9-]+(?:\.[a-z0-9-]+)+|(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:com|net|org|edu|gov|kr|io|dev|app|co|me|ai|info|biz|tv|xyz|shop|store|online))(?![a-z0-9.-])(?:[/?#][^\s<>"']*)?/gi;
-  for (const field of ['site', 'note1', 'note2', 'note3']) {
+  for (const field of ['site', 'note1', 'note2', 'note3', 'note4']) {
    if (typeof row[field] !== 'string') continue;
    let moved = false;
    const remaining = row[field].replace(urls, match => {
